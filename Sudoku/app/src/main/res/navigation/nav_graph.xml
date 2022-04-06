@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/mainMenuFragment">
+
+    <fragment
+        android:id="@+id/levelSelectFragment"
+        android:name="com.example.sudoku.menu.LevelSelectFragment"
+        android:label="@string/level_select_fragment_label"
+        tools:layout="@layout/fragment_level_select">
+        <action
+            android:id="@+id/action_levelSelectFragment_to_sudokuBoardFragment"
+            app:destination="@id/sudokuBoardFragment">
+            <argument
+                android:name="levelNumber"
+                android:defaultValue="0" />
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/sudokuBoardFragment"
+        android:name="com.example.sudoku.board.SudokuBoardFragment"
+        android:label="@string/sudoku_board_fragment_label">
+        <argument
+            android:name="levelNumber"
+            app:argType="integer"
+            android:defaultValue="1" />
+    </fragment>
+    <fragment
+        android:id="@+id/mainMenuFragment"
+        android:name="com.example.sudoku.menu.MainMenuFragment"
+        android:label="@string/main_menu_fragment_label"
+        tools:layout="@layout/fragment_main_menu" >
+        <action
+            android:id="@+id/action_mainMenuFragment_to_levelSelectFragment"
+            app:destination="@id/levelSelectFragment" />
+    </fragment>
+</navigation>
