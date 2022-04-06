@@ -1,3 +1,33 @@
 <resources>
     <string name="app_name">Sudoku</string>
+    <string name="_1">1</string>
+    <string name="_2">2</string>
+    <string name="back">Back</string>
+    <string name="eraser">Eraser</string>
+    <string name="pencil">pencil</string>
+    <string name="_3">3</string>
+    <string name="_4">4</string>
+    <string name="_5">5</string>
+    <string name="_6">6</string>
+    <string name="_7">7</string>
+    <string name="_8">8</string>
+    <string name="_9">9</string>
+    <string name="crossed_1"><strike>1</strike></string>
+    <string name="crossed_2"><strike>2</strike></string>
+    <string name="crossed_3"><strike>3</strike></string>
+    <string name="crossed_4"><strike>4</strike></string>
+    <string name="crossed_5"><strike>5</strike></string>
+    <string name="crossed_6"><strike>6</strike></string>
+    <string name="crossed_7"><strike>7</strike></string>
+    <string name="crossed_8"><strike>8</strike></string>
+    <string name="crossed_9"><strike>9</strike></string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="you_win">You win!</string>
+    <string name="action_switch_layout">Action Switch</string>
+    <string name="back_button">Back</string>
+    <string name="level_select_fragment_label">Level Select</string>
+    <string name="main_menu_fragment_label">Sudoku</string>
+    <string name="sudoku_board_fragment_label">Puzzle {levelNumber}</string>
+    <string name="time_taken">Time taken: %1$s</string>
+    <string name="_00_00">00:00</string>
 </resources>

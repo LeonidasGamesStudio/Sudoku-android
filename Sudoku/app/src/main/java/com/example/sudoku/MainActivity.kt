@@ -2,33 +2,29 @@ package com.example.sudoku
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.sudoku.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-
-
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.oneButton.setOnClickListener{ addNumber(1) }
-        binding.twoButton.setOnClickListener{ addNumber(2) }
-        binding.threeButton.setOnClickListener{ addNumber(3) }
-        binding.fourButton.setOnClickListener{ addNumber(4) }
-        binding.fiveButton.setOnClickListener{ addNumber(5) }
-        binding.sixButton.setOnClickListener{ addNumber(6) }
-        binding.sevenButton.setOnClickListener{ addNumber(7) }
-        binding.eightButton.setOnClickListener{ addNumber(8) }
-        binding.nineButton.setOnClickListener{ addNumber(9) }
 
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = navHostFragment.navController
+        setupActionBarWithNavController(navController)
     }
 
-    private fun addNumber (number: Int) {
-
-        binding.sudokuBoardView.addNumberToMatrix(number)
-
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
+
 }
