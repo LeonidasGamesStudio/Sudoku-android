@@ -125,12 +125,20 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
 
     override fun onDraw(canvas: Canvas) {
         cellSizePixels = (width / size).toFloat()
+        setNumberSizes()
 
         fillCells(canvas)
         drawLines(canvas)
 
         drawNumbers(canvas)
 
+    }
+
+    private fun setNumberSizes(){
+        val paintSize = (height / 10).toFloat()
+        numberPaint.textSize = paintSize
+        conflictPaint.textSize = paintSize
+        presetPaint.textSize = paintSize
     }
 
     fun addPresets(presetNum: Int) {
