@@ -123,6 +123,8 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
         setMeasuredDimension(sizePixels, sizePixels)
     }
 
+    //this is called every time anything is changed. number added, erased, pencil added, hint
+    //function to call is invalidate()
     override fun onDraw(canvas: Canvas) {
         cellSizePixels = (width / size).toFloat()
 
@@ -133,6 +135,8 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
 
     }
 
+    //gets presets from sudokuPresets and adds them to the sudoku board
+    //public fun done on startup in sudoku board fragment
     fun addPresets(presetNum: Int) {
         val sudokuPresets = SudokuPresets()
         val presets = sudokuPresets.returnPreset(presetNum)
@@ -147,10 +151,13 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
         }
     }
 
+    //checks the current number. public for other classes to access when selected row/column are
+    //unknown
     fun checkCurrentNum(): Int {
         return sudokuNumbers[selectedRow][selectedColumn].getNum()
     }
 
+    //checks to see if all of one number has been filled or if the final one has been cleared
     fun checkFilledNumbers(checkNumber: Int): Boolean {
         var amount = 0
         for (r in 0 until size) {
@@ -167,6 +174,8 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
         return false
     }
 
+    //takes selected row and column and shades them. One colour for selected cell, another for
+    //conflicting cells
     private fun fillCells(canvas: Canvas){
         if (selectedRow == -1 || selectedColumn == -1) return
         for (r in 0..size) {
@@ -182,10 +191,12 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
         }
     }
 
+    //fills cell with shading to show selected cell and conflicting cell
     private fun fillCell(canvas: Canvas, r: Int, c: Int, paint: Paint){
         canvas.drawRect(c * cellSizePixels, r * cellSizePixels, (c+1) * cellSizePixels, (r+1) * cellSizePixels, paint)
     }
 
+    //draws lines for the board
     private fun drawLines(canvas: Canvas){
         canvas.drawRect(0F, 0F, width.toFloat(), height.toFloat(), extraThickLinePaint)
 
@@ -213,23 +224,27 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
         }
     }
 
+    //adds a number to either the sudoku number matrix or the pencil number matrix when the button is pressed
     fun addNumberToMatrix(number: Int){
-        //check all squares for conflicts
-        if (number != 0) {
-            if (!pencil) {
-                sudokuNumbers[selectedRow][selectedColumn].changeNum(number)
-                sudokuNumbers[selectedRow][selectedColumn].changeType(1)
+        if (number != 0) {          //0 is when the eraser button is selected
+            if (!pencil) {          //if the pencil button is not selected
+                sudokuNumbers[selectedRow][selectedColumn].changeNum(number)    //change num to button pressed
+                sudokuNumbers[selectedRow][selectedColumn].changeType(1) //change type to 1
             }else{
-                sudokuNumbers[selectedRow][selectedColumn].setPencil(number)
+                sudokuNumbers[selectedRow][selectedColumn].setPencil(number) //set a pencilled number
             }
-        }else{
+        }else{  //if eraser is selected, change num to 0 and change type to 0 = empty
             sudokuNumbers[selectedRow][selectedColumn].changeNum(number)
             sudokuNumbers[selectedRow][selectedColumn].changeType(0)
         }
-        checkBoardConflicts()
+        checkBoardConflicts()   //checks board for all conflicts. could speed up by only checking
+        //affected squares, but seems fast enough for now
+        //TODO Near production, see if this is fast enough particularly on older phones
         invalidate()
     }
 
+    //checks wincon by checking the type of all squares. If type is 1 (inputted with no clash) or 2,
+    //then it satisfies win con. If any squares are another number, returns false (no win)
     fun checkWinCondition(): Boolean {
         for (i in 0 until size){
             for (j in 0 until size){
@@ -241,29 +256,31 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
         return true
     }
 
+    //function to check all board conflicts. This runs every time the view is invalidated to update
+    //any clashes. type is set to -1 for a conflict, 1 for no conflict
+
+    //TODO check if a clash with a preset (type 2) unlocks the preset
     private fun checkBoardConflicts(){
         for (j in 0 until size){        //iterate through rows
             for (i in 0 until size){    //iterate through columns
-                if (sudokuNumbers[i][j].getNum() != 0) {
-                    if (checkCellConflicts(
-                            i,
-                            j,
-                            sudokuNumbers[i][j].getNum()
-                        )
-                    ) {  //check for conflicts with specific cell
-                        sudokuNumbers[i][j].changeType(-1)
+                if (sudokuNumbers[i][j].getNum() != 0) {    //if there is a number in the square
+                    if (checkCellConflicts(i, j, sudokuNumbers[i][j].getNum())) {  //check for conflicts with specific cell
+                        sudokuNumbers[i][j].changeType(-1)  //conflict sets type to -1
                     } else {
-                        sudokuNumbers[i][j].changeType(1)
+                        sudokuNumbers[i][j].changeType(1)   //no clashes sets type to 1
                     }
                 }
             }
         }
     }
 
+    //parent function to check for cell conflicts, calls checkrow, checkcolumn and checksquare
+    //if positive, returns 1 for conflict
     private fun checkCellConflicts(row: Int, column: Int, number: Int): Boolean {
         return checkRow(row, column, number) || checkColumn(row, column, number) || checkSquare(row, column, number)
     }
 
+    //checks row for any clashes with current number
     private fun checkRow(row: Int, column: Int, number: Int): Boolean {
         for (i in 0 until size){
             if(i != column){
@@ -275,6 +292,7 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
         return false
     }
 
+    //checks column for any clashes with current number
     private fun checkColumn(row: Int, column: Int, number: Int): Boolean {
         for (i in 0 until size){
             if (i != row){
@@ -286,6 +304,7 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
         return false
     }
 
+    //checks the square of the selected cell for any conflicts with the number inputted
     private fun checkSquare(row: Int, column: Int, number: Int): Boolean {
         val squareX = (row / 3) * 3
         val squareY = (column / 3) * 3
@@ -302,28 +321,35 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
         return false
     }
 
+    //draws all numbers on the board, including pencils
     private fun drawNumbers (canvas: Canvas){
         val yOffset = ((numberPaint.ascent() + numberPaint.descent()) / 2)
         for (i in 0 until size){
             for (j in 0 until size){
-                if(sudokuNumbers[i][j].getType() == 1){
-                    canvas.drawText(sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, numberPaint)
-                }else if(sudokuNumbers[i][j].getType() == -1){
-                    canvas.drawText(sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, conflictPaint)
-                }else if(sudokuNumbers[i][j].getType() == 2) {
-                    canvas.drawText(
-                        sudokuNumbers[i][j].getNum().toString(),
-                        j * cellSizePixels + (cellSizePixels / 2),
-                        i * cellSizePixels + (cellSizePixels / 2) - yOffset,
-                        presetPaint
-                    )
-                }else if(sudokuNumbers[i][j].getType() == 0){
-                    drawPencils(canvas, i, j)
+                when {
+                    sudokuNumbers[i][j].getType() == 1 -> {
+                        canvas.drawText(sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, numberPaint)
+                    }
+                    sudokuNumbers[i][j].getType() == -1 -> {
+                        canvas.drawText(sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, conflictPaint)
+                    }
+                    sudokuNumbers[i][j].getType() == 2 -> {
+                        canvas.drawText(
+                            sudokuNumbers[i][j].getNum().toString(),
+                            j * cellSizePixels + (cellSizePixels / 2),
+                            i * cellSizePixels + (cellSizePixels / 2) - yOffset,
+                            presetPaint
+                        )
+                    }
+                    sudokuNumbers[i][j].getType() == 0 -> {
+                        drawPencils(canvas, i, j)
+                    }
                 }
             }
         }
     }
 
+//    function draws all pencil marks in. might need to check sizes
     private fun drawPencils(canvas: Canvas, i: Int, j: Int){
         for (k in 0..9){
             if (sudokuNumbers[i][j].getPencil(k)){
@@ -336,6 +362,8 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
         }
     }
 
+//    handles touch events. every time the board is touched, it is invalidated and redrawn with shading
+    // around selected cell
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return when (event.action) {
@@ -347,6 +375,7 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
         }
     }
 
+    //sets coordinates of selected row and column
     private fun handleTouchEvent(x: Float, y: Float) {
         selectedRow = (y / cellSizePixels).toInt()
         selectedColumn = (x / cellSizePixels).toInt()
