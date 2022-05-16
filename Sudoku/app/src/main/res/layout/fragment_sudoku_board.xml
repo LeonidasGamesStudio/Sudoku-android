@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+<!--    The timer above the board-->
     <Chronometer
         android:id="@+id/timer"
         android:layout_width="wrap_content"
@@ -13,40 +14,80 @@
         app:layout_constraintBottom_toTopOf="@id/sudokuBoardView"
         app:layout_constraintStart_toStartOf="parent"/>
 
+<!--    the sudoku board-->
+
     <com.example.sudoku.board.SudokuBoardView
         android:id="@+id/sudokuBoardView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/pencilButton"
+        app:layout_constraintBottom_toTopOf="@id/funcButtons"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/buttons"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:id="@+id/eraserButton"
-        android:text="@string/eraser" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/buttons"
-        app:layout_constraintStart_toStartOf="parent"
-        android:id="@+id/pencilButton"
-        android:text="@string/pencil"
-        />
-
+<!--    functional buttons i.e. undo, eraser, hint, pencil-->
     <TableRow
-        android:id="@+id/buttons"
+        android:id="@+id/funcButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="4"
+        app:layout_constraintBottom_toTopOf="@id/numberButtons"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+        <Button
+            android:id="@+id/eraserButton"
+            style="@style/numberButtons"
+            />
+
+        <Button
+            android:id="@+id/pencilButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pencil"
+            android:textSize="16sp"
+            android:layout_weight="1"
+            app:strokeColor="@color/green"
+            android:padding="2dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            />
+
+        <Button
+            android:id="@+id/undoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/undo"
+            android:textSize="16sp"
+            android:layout_weight="1"
+            app:strokeColor="@color/green"
+            android:padding="2dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            />
+
+        <Button
+            android:id="@+id/hintButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hint"
+            android:textSize="16sp"
+            android:layout_weight="1"
+            app:strokeColor="@color/green"
+            android:padding="2dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            />
+    </TableRow>
+
+<!-- numbered buttons  -->
+    <TableRow
+        android:id="@+id/numberButtons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:columnCount="9"
-        app:layout_constraintBottom_toTopOf="@id/adView"
+        app:layout_constraintTop_toBottomOf="@id/funcButtons"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
-
+<!--constrain buttons to adview once it is implemented-->
         <Button
             android:id="@+id/oneButton"
             android:layout_height="wrap_content"
@@ -148,20 +189,7 @@
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
     </TableRow>
 
-    <com.google.android.gms.ads.AdView
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/adView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        ads:adSize="BANNER"
-        ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
-        ads:layout_constraintBottom_toBottomOf="parent"
-        ads:layout_constraintStart_toStartOf="parent"
-        ads:layout_constraintEnd_toEndOf="parent">
-    </com.google.android.gms.ads.AdView>
-
+<!--    win ending screen -->
     <FrameLayout android:id="@+id/win_nav"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -170,4 +198,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/sudokuBoardView"
         />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
