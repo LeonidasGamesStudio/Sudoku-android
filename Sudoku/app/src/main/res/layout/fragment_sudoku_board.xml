@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@id/sudokuBoardView"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
 <!--    the sudoku board-->
@@ -21,23 +21,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@id/funcButtons"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/timer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
 <!--    functional buttons i.e. undo, eraser, hint, pencil-->
     <TableRow
         android:id="@+id/funcButtons"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:columnCount="4"
-        app:layout_constraintBottom_toTopOf="@id/numberButtons"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sudokuBoardView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
         <Button
             android:id="@+id/eraserButton"
-            style="@style/numberButtons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/eraser"
+            android:textSize="16sp"
+            android:layout_weight="1"
+            app:strokeColor="@color/green"
+            android:padding="2dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             />
 
         <Button
@@ -84,7 +90,6 @@
         android:layout_height="wrap_content"
         android:columnCount="9"
         app:layout_constraintTop_toBottomOf="@id/funcButtons"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 <!--constrain buttons to adview once it is implemented-->

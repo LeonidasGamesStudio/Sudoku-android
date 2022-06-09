@@ -8,8 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.example.sudoku.databinding.FragmentSudokuBoardBinding
 import com.example.sudoku.menu.WinFragment
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.MobileAds
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -60,11 +58,6 @@ class SudokuBoardFragment : Fragment() {
         binding.pencilButton.setOnClickListener{
             binding.sudokuBoardView.pencil = !binding.sudokuBoardView.pencil
         }
-
-        MobileAds.initialize(this.requireContext()) {}
-        val adRequest = AdRequest.Builder().build()
-
-        binding.adView.loadAd(adRequest)
 
         val value = arguments?.get("levelNumber")
         binding.sudokuBoardView.addPresets(value as Int)
