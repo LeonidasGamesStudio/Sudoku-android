@@ -59,6 +59,8 @@ class SudokuBoardFragment : Fragment() {
             binding.sudokuBoardView.pencil = !binding.sudokuBoardView.pencil
         }
 
+        binding.undoButton.setOnClickListener{ binding.sudokuBoardView.undoMove()}
+
         val value = arguments?.get("levelNumber")
         binding.sudokuBoardView.addPresets(value as Int)
         binding.timer.start()

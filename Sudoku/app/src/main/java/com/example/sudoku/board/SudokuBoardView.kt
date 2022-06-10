@@ -45,6 +45,8 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
         }
     }
 
+    class UndoStackEntry(val numberEntry: NumberEntry, val posX: Int, val posY: Int)
+
 
     private val sqrtSize = 3
     private val size = 9
@@ -53,9 +55,15 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
     private var selectedRow = -1
     private var selectedColumn = -1
     private var numberTextSize = 64F
+    private var undoStack = ArrayDeque<UndoStackEntry>()
     var pencil = false
 
     var sudokuNumbers = Array(9) {Array(9) { NumberEntry(0,0) } }
+
+    class paintValues(){    //TODO move paint values into class
+
+
+    }
 
     private val numberPaint = Paint().apply {
         style = Paint.Style.FILL
@@ -120,6 +128,7 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         val sizePixels = Math.min(widthMeasureSpec, heightMeasureSpec)
+        numberTextSize = (sizePixels / 100).toFloat()
         setMeasuredDimension(sizePixels, sizePixels)
     }
 
@@ -226,20 +235,28 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
 
     //adds a number to either the sudoku number matrix or the pencil number matrix when the button is pressed
     fun addNumberToMatrix(number: Int){
-        if (number != 0) {          //0 is when the eraser button is selected
-            if (!pencil) {          //if the pencil button is not selected
+        if(!pencil) {
+            undoStack.add(
+                UndoStackEntry(
+                    NumberEntry(
+                        sudokuNumbers[selectedRow][selectedColumn].getNum(),
+                        sudokuNumbers[selectedRow][selectedColumn].getType()
+                    ), selectedRow, selectedColumn
+                )
+            )
+            if (number != 0) {          //0 is when the eraser button is selected
                 sudokuNumbers[selectedRow][selectedColumn].changeNum(number)    //change num to button pressed
                 sudokuNumbers[selectedRow][selectedColumn].changeType(1) //change type to 1
-            }else{
-                sudokuNumbers[selectedRow][selectedColumn].setPencil(number) //set a pencilled number
+            } else {  //if eraser is clicked, change num to 0 and change type to 0 = empty
+                sudokuNumbers[selectedRow][selectedColumn].changeNum(number)
+                sudokuNumbers[selectedRow][selectedColumn].changeType(0)
             }
-        }else{  //if eraser is selected, change num to 0 and change type to 0 = empty
-            sudokuNumbers[selectedRow][selectedColumn].changeNum(number)
-            sudokuNumbers[selectedRow][selectedColumn].changeType(0)
+            checkBoardConflicts()   //checks board for all conflicts. could speed up by only checking
+            //affected squares, but seems fast enough for now
+            //TODO Near production, see if this is fast enough particularly on older phones
+        }else if (number != 0){
+            sudokuNumbers[selectedRow][selectedColumn].setPencil(number) //set a pencilled number
         }
-        checkBoardConflicts()   //checks board for all conflicts. could speed up by only checking
-        //affected squares, but seems fast enough for now
-        //TODO Near production, see if this is fast enough particularly on older phones
         invalidate()
     }
 
@@ -359,6 +376,16 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
                     (i * cellSizePixels + (((k - 1) / 3) + 0.5) * (cellSizePixels / 3) - yOffset).toFloat(), pencilPaint)
             //draw pencil
             }
+        }
+    }
+
+    fun undoMove(){
+        val move = undoStack.lastOrNull()
+        undoStack.removeLastOrNull()
+        if(move != null) {
+            sudokuNumbers[move.posX][move.posY].changeNum(move.numberEntry.getNum())
+            sudokuNumbers[move.posX][move.posY].changeType(move.numberEntry.getType())
+            invalidate()
         }
     }
 

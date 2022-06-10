@@ -28,7 +28,7 @@
 <!--    functional buttons i.e. undo, eraser, hint, pencil-->
     <TableRow
         android:id="@+id/funcButtons"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:columnCount="4"
         app:layout_constraintTop_toBottomOf="@id/sudokuBoardView"
@@ -36,50 +36,26 @@
         app:layout_constraintStart_toStartOf="parent">
         <Button
             android:id="@+id/eraserButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/eraser"
-            android:textSize="16sp"
-            android:layout_weight="1"
-            app:strokeColor="@color/green"
-            android:padding="2dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/funcButtons"
             />
 
         <Button
             android:id="@+id/pencilButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/pencil"
-            android:textSize="16sp"
-            android:layout_weight="1"
-            app:strokeColor="@color/green"
-            android:padding="2dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/funcButtons"
             />
 
         <Button
             android:id="@+id/undoButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/undo"
-            android:textSize="16sp"
-            android:layout_weight="1"
-            app:strokeColor="@color/green"
-            android:padding="2dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/funcButtons"
             />
 
         <Button
             android:id="@+id/hintButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/hint"
-            android:textSize="16sp"
-            android:layout_weight="1"
-            app:strokeColor="@color/green"
-            android:padding="2dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/funcButtons"
             />
     </TableRow>
 
@@ -95,103 +71,49 @@
 <!--constrain buttons to adview once it is implemented-->
         <Button
             android:id="@+id/oneButton"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
             android:text="@string/_1"
-            android:textSize="32sp"
-            android:layout_weight="1"
-            app:strokeColor="@color/green"
-            android:padding="2dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+            style="@style/numberButtons"/>
 
         <Button
             android:id="@+id/twoButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/_2"
-            android:textSize="32sp"
-            android:layout_weight="1"
-            app:strokeColor="@color/green"
-            android:padding="2dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+            style="@style/numberButtons"/>
 
         <Button
             android:id="@+id/threeButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/_3"
-            android:textSize="32sp"
-            android:layout_weight="1"
-            app:strokeColor="@color/green"
-            android:padding="2dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/numberButtons"
             />
 
         <Button
             android:id="@+id/fourButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/_4"
-            android:textSize="32sp"
-            android:layout_weight="1"
-            android:padding="2dp"
-            app:strokeColor="@color/green"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+            style="@style/numberButtons"/>
 
         <Button
             android:id="@+id/fiveButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/_5"
-            android:textSize="32sp"
-            android:layout_weight="1"
-            app:strokeColor="@color/green"
-            android:padding="2dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+            style="@style/numberButtons"/>
 
         <Button
             android:id="@+id/sixButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/_6"
-            android:textSize="32sp"
-            android:layout_weight="1"
-            app:strokeColor="@color/green"
-            android:padding="2dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+            style="@style/numberButtons"/>
 
         <Button
             android:id="@+id/sevenButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/_7"
-            android:textSize="32sp"
-            android:layout_weight="1"
-            app:strokeColor="@color/green"
-            android:padding="2dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+            style="@style/numberButtons" />
 
         <Button
             android:id="@+id/eightButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/_8"
-            android:textSize="32sp"
-            android:layout_weight="1"
-            app:strokeColor="@color/green"
-            android:padding="2dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+            style="@style/numberButtons"/>
 
         <Button
             android:id="@+id/nineButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/_9"
-            android:textSize="32sp"
-            android:layout_weight="1"
-            app:strokeColor="@color/green"
-            android:padding="2dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+            style="@style/numberButtons"/>
     </TableRow>
 
 <!--    win ending screen -->
