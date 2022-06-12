@@ -26,6 +26,9 @@
             android:name="levelNumber"
             app:argType="integer"
             android:defaultValue="1" />
+        <action
+            android:id="@+id/action_sudokuBoardFragment_to_winFragment"
+            app:destination="@id/winFragment" />
     </fragment>
     <fragment
         android:id="@+id/mainMenuFragment"
@@ -35,5 +38,14 @@
         <action
             android:id="@+id/action_mainMenuFragment_to_levelSelectFragment"
             app:destination="@id/levelSelectFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/winFragment"
+        android:name="com.example.sudoku.menu.WinFragment"
+        android:label="fragment_win"
+        tools:layout="@layout/fragment_win" >
+        <action
+            android:id="@+id/action_winFragment_to_mainMenuFragment"
+            app:destination="@id/mainMenuFragment" />
     </fragment>
 </navigation>

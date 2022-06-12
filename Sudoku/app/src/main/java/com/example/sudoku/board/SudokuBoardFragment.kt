@@ -5,9 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
+import androidx.navigation.findNavController
 import com.example.sudoku.databinding.FragmentSudokuBoardBinding
-import com.example.sudoku.menu.WinFragment
+import com.google.android.gms.ads.AdRequest
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -65,6 +65,10 @@ class SudokuBoardFragment : Fragment() {
         binding.sudokuBoardView.addPresets(value as Int)
         binding.timer.start()
         timeBegin = System.currentTimeMillis()
+
+
+        val adRequest = AdRequest.Builder().build()
+        binding.adView.loadAd(adRequest)
     }
 
     override fun onDestroyView() {
@@ -78,18 +82,14 @@ class SudokuBoardFragment : Fragment() {
         checkForFilledNumbers(number, previousNum)
         if (binding.sudokuBoardView.checkWinCondition()){
             val timeTaken = System.currentTimeMillis() - timeBegin
-            addWinFragment(timeTaken)
+            moveToWinScreen(timeTaken)
             return
         }
     }
 
-    private fun addWinFragment(timeTaken: Long) {
-        val ft: FragmentTransaction = requireActivity().supportFragmentManager.beginTransaction()
-// Replace the contents of the container with the new fragment
-        ft.replace(com.example.sudoku.R.id.win_nav, WinFragment.newInstance(timeTaken))
-// Complete the changes added above
-        ft.commit()
-
+    private fun moveToWinScreen(timeTaken: Long){
+        val action = SudokuBoardFragmentDirections.actionSudokuBoardFragmentToWinFragment()
+        view?.findNavController()?.navigate(action)
     }
 
     private fun checkForFilledNumbers(number: Int, previousNum: Int){

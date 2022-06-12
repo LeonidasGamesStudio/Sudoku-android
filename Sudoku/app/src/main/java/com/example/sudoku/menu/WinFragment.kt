@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import com.example.sudoku.R
 import com.example.sudoku.databinding.FragmentWinBinding
 
@@ -48,6 +49,14 @@ class WinFragment : Fragment() {
 
         binding.winTime.text = getString(R.string.time_taken, timeString)
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.okay.setOnClickListener {
+            val action = WinFragmentDirections.actionWinFragmentToMainMenuFragment()
+            view.findNavController().navigate(action)
+        }
     }
 
     companion object {
