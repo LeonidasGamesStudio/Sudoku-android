@@ -38,6 +38,9 @@
         <action
             android:id="@+id/action_mainMenuFragment_to_levelSelectFragment"
             app:destination="@id/levelSelectFragment" />
+        <action
+            android:id="@+id/action_mainMenuFragment_to_difficultySelect"
+            app:destination="@id/difficultySelect" />
     </fragment>
     <fragment
         android:id="@+id/winFragment"
@@ -47,5 +50,14 @@
         <action
             android:id="@+id/action_winFragment_to_mainMenuFragment"
             app:destination="@id/mainMenuFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/difficultySelect"
+        android:name="com.example.sudoku.menu.DifficultySelect"
+        android:label="fragment_difficulty_select"
+        tools:layout="@layout/fragment_difficulty_select" >
+        <action
+            android:id="@+id/action_difficultySelect_to_sudokuBoardFragment"
+            app:destination="@id/sudokuBoardFragment" />
     </fragment>
 </navigation>

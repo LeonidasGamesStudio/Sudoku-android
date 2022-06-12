@@ -38,7 +38,7 @@ class MainMenuFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.playButton.setOnClickListener{
-            val action = MainMenuFragmentDirections.actionMainMenuFragmentToLevelSelectFragment()
+            val action = MainMenuFragmentDirections.actionMainMenuFragmentToDifficultySelect()
             view.findNavController().navigate(action)
         }
     }
