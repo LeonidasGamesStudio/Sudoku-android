@@ -3,6 +3,7 @@
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import random
+from copy import deepcopy
 
 count = 0
 
@@ -105,14 +106,15 @@ def recursive_sudoku_counter(grid, number, i, j):
             count = count + 1
             return True
         for k in range(1, 10):
-            recursive_sudoku_counter(grid, k, x, y)
+            recursive_sudoku_counter(deepcopy(grid), k, x, y)
     grid[i][j] = 0
     return False
 
 
 def find_all_solutions(grid):
+    global count
     count = 0
     x, y = find_next_coordinates(grid, 0, 0)
     for i in range(1, 10):
-        recursive_sudoku_counter(grid, i, x, y)
+        recursive_sudoku_counter(deepcopy(grid), i, x, y)
     return count
