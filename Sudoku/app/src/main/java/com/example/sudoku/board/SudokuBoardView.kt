@@ -8,21 +8,140 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import kotlin.random.Random.Default.nextInt
+import java.util.Random as rand
 
+const val TYPE_CONFLICT = 3
+const val TYPE_NORMAL = 1
+const val TYPE_START = 2
+const val TYPE_EMPTY = 0
+
+class PuzzleJumbler(private val sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>, private val size: Int){
+    fun jumblePuzzle() {
+        rotatePuzzle(sudokuNumbers, size)
+        shiftPuzzle(sudokuNumbers, size)
+        recodePuzzle(sudokuNumbers, size)
+        return
+    }
+
+    private fun rotatePuzzle(sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>, size: Int) {
+        when (rand().nextInt(3)) {
+            0 -> {              //no rotation
+                return
+            }
+            1 -> {              //rotate 90 degrees
+                rotate90(sudokuNumbers, size)
+            }
+            else -> {           //rotate 270 degrees
+                rotate270(sudokuNumbers, size)
+            }
+        }
+        return
+    }
+
+    private fun rotate90(sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>, size: Int) {
+        val originalGrid = sudokuNumbers.copyOf()
+        for (i in 0 until size) {
+            for (j in 0 until size) {
+                sudokuNumbers[j][i + ((((size - 1) / 2) - i) * 2)].changeNum(originalGrid[i][j].getNum())
+                sudokuNumbers[j][i + ((((size - 1) / 2) - i) * 2)].changeType(originalGrid[i][j].getType())
+            }
+        }
+        return
+    }
+
+    private fun rotate270(sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>, size: Int) {
+        val originalGrid = sudokuNumbers.copyOf()
+        for (x in 0 until size) {
+            for (y in 0 until size) {
+                sudokuNumbers[y + ((((size - 1) / 2) - x) * 2)][x].changeNum(originalGrid[x][y].getNum())
+                sudokuNumbers[y + ((((size - 1) / 2) - x) * 2)][x].changeType(originalGrid[x][y].getType())
+
+            }
+        }
+        return
+    }
+
+    private fun shiftPuzzle(sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>, size: Int) {
+        val originalGrid = sudokuNumbers.copyOf()
+        //do rows
+        //shift 0, 1, 2 times
+        when (rand().nextInt(3)){
+            0 -> { //shift 0 times
+            }
+            1 -> {  //shift 1 time
+                for (y in 0 until size) {
+                    sudokuNumbers[0][y].changeNum(originalGrid[2][y].getNum())
+                    sudokuNumbers[0][y].changeType(originalGrid[2][y].getType())
+                }
+                for (y in 0 until size) {
+                    sudokuNumbers[1][y].changeNum(originalGrid[0][y].getNum())
+                    sudokuNumbers[1][y].changeType(originalGrid[0][y].getType())
+                }
+                for (y in 0 until size) {
+                    sudokuNumbers[2][y].changeNum(originalGrid[1][y].getNum())
+                    sudokuNumbers[2][y].changeType(originalGrid[1][y].getType())
+                }
+            }
+            else -> {   //shift two times
+                for (y in 0 until size) {
+                    sudokuNumbers[0][y].changeNum(originalGrid[1][y].getNum())
+                    sudokuNumbers[0][y].changeType(originalGrid[1][y].getType())
+                }
+                for (y in 0 until size) {
+                    sudokuNumbers[1][y].changeNum(originalGrid[2][y].getNum())
+                    sudokuNumbers[1][y].changeType(originalGrid[2][y].getType())
+                }
+                for (y in 0 until size) {
+                    sudokuNumbers[2][y].changeNum(originalGrid[0][y].getNum())
+                    sudokuNumbers[2][y].changeType(originalGrid[0][y].getType())
+                }
+            }
+        }
+        //do columns
+        return
+    }
+
+    private fun recodePuzzle(sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>, size: Int) {
+        val map = getMap(size)
+        for (i in 0 until size){
+            for (j in 0 until size){
+                map[sudokuNumbers[i][j].getNum()]?.let { sudokuNumbers[i][j].changeNum(it) }
+            }
+        }
+        return
+    }
+
+    private fun getMap(size: Int): Map<Int, Int>{
+        val listOfNums = (1..size).toMutableList()
+        val listOfKeys = (1..size).toMutableList()
+        val map = mutableMapOf<Int, Int>()
+        for (i in 0 until size) {
+            val numsIndex = rand().nextInt((listOfNums.size))
+            val keysIndex = rand().nextInt((listOfKeys.size))
+            val num = listOfNums[numsIndex]
+            val key = listOfKeys[keysIndex]
+            listOfNums.removeAt(numsIndex)
+            listOfKeys.removeAt(keysIndex)
+            map[key] = num
+        }
+        return map
+    }
+}
 
 class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(context,attributeSet){
     class NumberEntry(private var number: Int, private var type: Int){
-        //type: 1 = normal, -1 = conflict, 2 = start, 0 = unfilled/pencilled
+        //type: 1 = normal, 3 = conflict, 2 = start, 0 = unfilled/pencilled
         private var pencilNumbers = BooleanArray(10) {false}
 
         fun changeNum(newNum: Int){
-            if (type != 2) {
+            if (type != TYPE_START) {
                 number = newNum
             }
         }
 
         fun changeType(newType: Int){
-            if (type != 2){
+            if (type != TYPE_START){
                 type = newType
             }
         }
@@ -146,16 +265,22 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
     //gets presets from sudokuPresets and adds them to the sudoku board
     //public fun done on startup in sudoku board fragment
     fun addPresets(presetNum: Int) {
-        val sudokuPresets = SudokuPresets()
-        val presets = sudokuPresets.returnPreset(presetNum)
+        val sudokuPresets = SudokuPresetsDifficulty()
 
-        for (i in 0 .. 8){
-            for (j in 0 .. 8){
-                if (presets[i][j] != 0) {
-                    sudokuNumbers[i][j].changeNum(presets[i][j])
-                    sudokuNumbers[i][j].changeType(2)
+        if (presetNum != 0) {
+            var presets = sudokuPresets.returnPreset(presetNum)
+            for (i in 0..8) {
+                for (j in 0..8) {
+                    val number = presets.last().digitToInt()
+                    presets = presets.dropLast(1)
+                    if (number != 0) {
+                        sudokuNumbers[i][j].changeNum(number)
+                        sudokuNumbers[i][j].changeType(TYPE_START)
+                    }
                 }
             }
+            val puzzleJumbler = PuzzleJumbler(sudokuNumbers, size)
+            puzzleJumbler.jumblePuzzle()
         }
     }
 
@@ -180,6 +305,32 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
             return true
         }
         return false
+    }
+
+    fun getSaveData(): String {
+        var numbers: String = ""
+        for (i in 0 until size){
+            for (j in 0 until size){
+                numbers += sudokuNumbers[i][j].getNum().toString()
+                numbers += sudokuNumbers[i][j].getType().toString()
+            }
+        }
+        return numbers
+    }
+
+    fun loadSaveData(data: String){
+        var saveData = data
+        for (i in size - 1 downTo 0 ){
+            for (j in size - 1 downTo 0){
+                var type = saveData.last()
+                saveData = saveData.dropLast(1)
+                var number = saveData.last()
+                saveData = saveData.dropLast(1)
+                sudokuNumbers[i][j].changeNum(number.digitToInt())
+                sudokuNumbers[i][j].changeType(type.digitToInt())
+            }
+        }
+        invalidate()
     }
 
     //takes selected row and column and shades them. One colour for selected cell, another for
@@ -245,10 +396,10 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
             )
             if (number != 0) {          //0 is when the eraser button is selected
                 sudokuNumbers[selectedRow][selectedColumn].changeNum(number)    //change num to button pressed
-                sudokuNumbers[selectedRow][selectedColumn].changeType(1) //change type to 1
+                sudokuNumbers[selectedRow][selectedColumn].changeType(TYPE_NORMAL) //change type to 1
             } else {  //if eraser is clicked, change num to 0 and change type to 0 = empty
                 sudokuNumbers[selectedRow][selectedColumn].changeNum(number)
-                sudokuNumbers[selectedRow][selectedColumn].changeType(0)
+                sudokuNumbers[selectedRow][selectedColumn].changeType(TYPE_EMPTY)
             }
             checkBoardConflicts()   //checks board for all conflicts. could speed up by only checking
             //affected squares, but seems fast enough for now
@@ -264,7 +415,7 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
     fun checkWinCondition(): Boolean {
         for (i in 0 until size){
             for (j in 0 until size){
-                if (sudokuNumbers[i][j].getType() != 1 && sudokuNumbers[i][j].getType() != 2){
+                if (sudokuNumbers[i][j].getType() != 1 && sudokuNumbers[i][j].getType() != TYPE_START){
                     return false
                 }
             }
@@ -273,7 +424,7 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
     }
 
     //function to check all board conflicts. This runs every time the view is invalidated to update
-    //any clashes. type is set to -1 for a conflict, 1 for no conflict
+    //any clashes. type is set to 3 for a conflict, 1 for no conflict
 
     //TODO check if a clash with a preset (type 2) unlocks the preset
     private fun checkBoardConflicts(){
@@ -281,9 +432,9 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
             for (i in 0 until size){    //iterate through columns
                 if (sudokuNumbers[i][j].getNum() != 0) {    //if there is a number in the square
                     if (checkCellConflicts(i, j, sudokuNumbers[i][j].getNum())) {  //check for conflicts with specific cell
-                        sudokuNumbers[i][j].changeType(-1)  //conflict sets type to -1
+                        sudokuNumbers[i][j].changeType(TYPE_CONFLICT)  //conflict sets type to 3
                     } else {
-                        sudokuNumbers[i][j].changeType(1)   //no clashes sets type to 1
+                        sudokuNumbers[i][j].changeType(TYPE_NORMAL)   //no clashes sets type to 1
                     }
                 }
             }
@@ -343,13 +494,13 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
         for (i in 0 until size){
             for (j in 0 until size){
                 when {
-                    sudokuNumbers[i][j].getType() == 1 -> {
+                    sudokuNumbers[i][j].getType() == TYPE_NORMAL -> {
                         canvas.drawText(sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, numberPaint)
                     }
-                    sudokuNumbers[i][j].getType() == -1 -> {
+                    sudokuNumbers[i][j].getType() == TYPE_CONFLICT -> {
                         canvas.drawText(sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, conflictPaint)
                     }
-                    sudokuNumbers[i][j].getType() == 2 -> {
+                    sudokuNumbers[i][j].getType() == TYPE_START -> {
                         canvas.drawText(
                             sudokuNumbers[i][j].getNum().toString(),
                             j * cellSizePixels + (cellSizePixels / 2),
@@ -357,7 +508,7 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
                             presetPaint
                         )
                     }
-                    sudokuNumbers[i][j].getType() == 0 -> {
+                    sudokuNumbers[i][j].getType() == TYPE_EMPTY -> {
                         drawPencils(canvas, i, j)
                     }
                 }

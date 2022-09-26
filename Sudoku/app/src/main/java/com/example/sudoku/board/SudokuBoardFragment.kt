@@ -1,25 +1,19 @@
 package com.example.sudoku.board
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
+import androidx.preference.PreferenceManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import com.example.sudoku.databinding.FragmentSudokuBoardBinding
 import com.google.android.gms.ads.AdRequest
 
-
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [SudokuBoardFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SudokuBoardFragment : Fragment() {
     private var _binding: FragmentSudokuBoardBinding? = null
     private val binding get() = _binding!!
@@ -66,12 +60,25 @@ class SudokuBoardFragment : Fragment() {
         binding.timer.start()
         timeBegin = System.currentTimeMillis()
 
+        val sharedPref = getDefaultSharedPreferences(activity)
+        val numbersString = sharedPref.getString("SAVED_NUMBERS", null)
+        if (numbersString != null) {
+            binding.sudokuBoardView.loadSaveData(numbersString)
+        }
 
         val adRequest = AdRequest.Builder().build()
         binding.adView.loadAd(adRequest)
     }
 
     override fun onDestroyView() {
+        val sharedPref = getDefaultSharedPreferences(activity)
+        val numbersString = binding.sudokuBoardView.getSaveData()
+        if (sharedPref != null) {
+            with (sharedPref.edit()) {
+                putString("SAVED_NUMBERS", numbersString)
+                commit()
+            }
+        }
         super.onDestroyView()
         _binding = null
     }

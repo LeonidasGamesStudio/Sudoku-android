@@ -37,6 +37,18 @@ class DifficultySelect : Fragment() {
             val action = DifficultySelectDirections.actionDifficultySelectToSudokuBoardFragment(1)
             view.findNavController().navigate(action)
         }
+        binding.mediumButton.setOnClickListener{
+            val action = DifficultySelectDirections.actionDifficultySelectToSudokuBoardFragment(2)
+            view.findNavController().navigate(action)
+        }
+        binding.hardButton.setOnClickListener{
+            val action = DifficultySelectDirections.actionDifficultySelectToSudokuBoardFragment(3)
+            view.findNavController().navigate(action)
+        }
+        binding.expertButton.setOnClickListener{
+            val action = DifficultySelectDirections.actionDifficultySelectToSudokuBoardFragment(4)
+            view.findNavController().navigate(action)
+        }
     }
 
     override fun onDestroyView() {

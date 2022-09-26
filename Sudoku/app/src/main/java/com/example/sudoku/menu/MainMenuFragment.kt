@@ -5,7 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.add
+import androidx.fragment.app.commit
 import androidx.navigation.findNavController
+import androidx.preference.PreferenceManager
+import com.example.sudoku.R
 import com.example.sudoku.databinding.FragmentMainMenuBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -30,16 +34,24 @@ class MainMenuFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         _binding = FragmentMainMenuBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         binding.playButton.setOnClickListener{
-            val action = MainMenuFragmentDirections.actionMainMenuFragmentToDifficultySelect()
-            view.findNavController().navigate(action)
+            val sharedPref = PreferenceManager.getDefaultSharedPreferences(activity)
+            val numbersString = sharedPref.getString("SAVED_NUMBERS", null)
+            if (numbersString == null) {
+                val action = MainMenuFragmentDirections.actionMainMenuFragmentToDifficultySelect()
+                view.findNavController().navigate(action)
+            }else{
+                val action = MainMenuFragmentDirections.actionMainMenuFragmentToContinueGameFragment()
+                view.findNavController().navigate(action)
+            }
         }
     }
 
