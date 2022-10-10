@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import androidx.preference.PreferenceManager
+import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import com.example.sudoku.R
 import com.example.sudoku.databinding.FragmentWinBinding
 
@@ -56,6 +58,14 @@ class WinFragment : Fragment() {
         binding.okay.setOnClickListener {
             val action = WinFragmentDirections.actionWinFragmentToMainMenuFragment()
             view.findNavController().navigate(action)
+        }
+        val sharedPref = getDefaultSharedPreferences(activity)
+        if (sharedPref != null) {
+            with (sharedPref.edit()) {
+                putString("SAVED_NUMBERS", null)
+                putLong("TIME_STOPPED", 0L)
+                apply()
+            }
         }
     }
 

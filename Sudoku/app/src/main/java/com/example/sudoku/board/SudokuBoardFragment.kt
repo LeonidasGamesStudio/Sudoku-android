@@ -1,13 +1,10 @@
 package com.example.sudoku.board
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
-import androidx.preference.PreferenceManager
+import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
@@ -57,13 +54,20 @@ class SudokuBoardFragment : Fragment() {
 
         val value = arguments?.get("levelNumber")
         binding.sudokuBoardView.addPresets(value as Int)
-        binding.timer.start()
-        timeBegin = System.currentTimeMillis()
+
 
         val sharedPref = getDefaultSharedPreferences(activity)
         val numbersString = sharedPref.getString("SAVED_NUMBERS", null)
         if (numbersString != null) {
             binding.sudokuBoardView.loadSaveData(numbersString)
+        }
+
+        val timerLong = sharedPref.getLong("TIME_STOPPED", 0L)
+        if (timerLong < 0) {
+            binding.timer.base = timerLong + SystemClock.elapsedRealtime()
+            binding.timer.start()
+        }else{
+            binding.timer.start()
         }
 
         val adRequest = AdRequest.Builder().build()
@@ -76,12 +80,14 @@ class SudokuBoardFragment : Fragment() {
         if (sharedPref != null) {
             with (sharedPref.edit()) {
                 putString("SAVED_NUMBERS", numbersString)
-                commit()
+                putLong("TIME_STOPPED", binding.timer.base - SystemClock.elapsedRealtime())
+                apply()
             }
         }
         super.onDestroyView()
         _binding = null
     }
+
 
     private fun addNumber (number: Int) {
         val previousNum = binding.sudokuBoardView.checkCurrentNum()

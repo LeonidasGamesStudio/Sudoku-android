@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
         if (sharedPref != null) {                                       //when app is opened. Need to remove. Just
             with (sharedPref.edit()) {                                   //just for testing for now
                 putString("SAVED_NUMBERS", null)
+                putLong("TIME_STOPPED", 0L)
                 commit()
             }
         }

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceManager
+import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import com.example.sudoku.R
 import com.example.sudoku.databinding.FragmentContinueGameBinding
 import com.example.sudoku.databinding.FragmentMainMenuBinding
@@ -42,12 +43,11 @@ class ContinueGameFragment : Fragment() {
             view.findNavController().navigate(action)
         }
         binding.noButton.setOnClickListener {
-            val sharedPref = PreferenceManager.getDefaultSharedPreferences(activity)
-            if (sharedPref != null) {
-                with (sharedPref.edit()) {
-                    putString("SAVED_NUMBERS", null)
-                    commit()
-                }
+            val sharedPref = getDefaultSharedPreferences(activity)
+            with (sharedPref.edit()) {
+                putString("SAVED_NUMBERS", null)
+                putLong("TIMER_STOPPED", 0L)
+                apply()
             }
             val action = ContinueGameFragmentDirections.actionContinueGameFragmentToDifficultySelect()
             view.findNavController().navigate(action)
