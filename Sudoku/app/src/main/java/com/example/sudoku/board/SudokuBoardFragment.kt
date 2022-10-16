@@ -15,6 +15,7 @@ class SudokuBoardFragment : Fragment() {
     private var _binding: FragmentSudokuBoardBinding? = null
     private val binding get() = _binding!!
     private var timeBegin: Long = System.currentTimeMillis()
+    private var gameWon: Boolean = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +63,7 @@ class SudokuBoardFragment : Fragment() {
             binding.sudokuBoardView.loadSaveData(numbersString)
         }
 
-        val timerLong = sharedPref.getLong("TIME_STOPPED", 0L)
+        val timerLong = sharedPref.getLong("TIMER_STOPPED", 0L)
         if (timerLong < 0) {
             binding.timer.base = timerLong + SystemClock.elapsedRealtime()
             binding.timer.start()
@@ -75,13 +76,15 @@ class SudokuBoardFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        val sharedPref = getDefaultSharedPreferences(activity)
-        val numbersString = binding.sudokuBoardView.getSaveData()
-        if (sharedPref != null) {
-            with (sharedPref.edit()) {
-                putString("SAVED_NUMBERS", numbersString)
-                putLong("TIME_STOPPED", binding.timer.base - SystemClock.elapsedRealtime())
-                apply()
+        if (!gameWon) {
+            val sharedPref = getDefaultSharedPreferences(activity)
+            val numbersString = binding.sudokuBoardView.getSaveData()
+            if (sharedPref != null) {
+                with(sharedPref.edit()) {
+                    putString("SAVED_NUMBERS", numbersString)
+                    putLong("TIMER_STOPPED", binding.timer.base - SystemClock.elapsedRealtime())
+                    apply()
+                }
             }
         }
         super.onDestroyView()
@@ -101,6 +104,7 @@ class SudokuBoardFragment : Fragment() {
     }
 
     private fun moveToWinScreen(timeTaken: Long){
+        gameWon = true
         val action = SudokuBoardFragmentDirections.actionSudokuBoardFragmentToWinFragment()
         view?.findNavController()?.navigate(action)
     }

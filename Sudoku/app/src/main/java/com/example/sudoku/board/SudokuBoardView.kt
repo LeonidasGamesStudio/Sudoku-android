@@ -324,7 +324,6 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
     //function to check all board conflicts. This runs every time the view is invalidated to update
     //any clashes. type is set to 3 for a conflict, 1 for no conflict
 
-    //TODO check if a clash with a preset (type 2) unlocks the preset
     private fun checkBoardConflicts(){
         for (j in 0 until size){        //iterate through rows
             for (i in 0 until size){    //iterate through columns
