@@ -10,23 +10,23 @@
     <Button
         android:id="@+id/easyButton"
         android:text="Easy"
-        style="@style/numberButtons"
+        style="@style/difficultySelectButtons"
         android:layout_marginTop="100dp"
         />
     <Button
         android:id="@+id/mediumButton"
         android:text="Medium"
-        style="@style/numberButtons"
+        style="@style/difficultySelectButtons"
         />
     <Button
         android:id="@+id/hardButton"
         android:text="Hard"
-        style="@style/numberButtons"
+        style="@style/difficultySelectButtons"
         />
     <Button
         android:id="@+id/expertButton"
         android:text="Expert"
-        style="@style/numberButtons"
+        style="@style/difficultySelectButtons"
         android:layout_marginBottom="100dp"
         />
 </LinearLayout>
