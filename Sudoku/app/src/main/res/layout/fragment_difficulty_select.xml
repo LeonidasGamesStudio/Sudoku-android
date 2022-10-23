@@ -11,7 +11,7 @@
         android:id="@+id/easyButton"
         android:text="Easy"
         style="@style/difficultySelectButtons"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="150dp"
         />
     <Button
         android:id="@+id/mediumButton"
@@ -27,6 +27,6 @@
         android:id="@+id/expertButton"
         android:text="Expert"
         style="@style/difficultySelectButtons"
-        android:layout_marginBottom="100dp"
+        android:layout_marginBottom="150dp"
         />
 </LinearLayout>

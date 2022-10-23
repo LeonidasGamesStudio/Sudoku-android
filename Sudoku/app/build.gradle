@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    compileSdk 31
+    compileSdk 33
 
     buildFeatures{
         viewBinding true
@@ -14,8 +14,8 @@ android {
 
     defaultConfig {
         applicationId "com.example.sudoku"
-        minSdk 19
-        targetSdk 31
+        minSdk 21
+        targetSdk 33
         versionCode 1
         versionName "1.0"
         multiDexEnabled true

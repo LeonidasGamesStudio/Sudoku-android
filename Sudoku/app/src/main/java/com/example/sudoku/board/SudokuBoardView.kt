@@ -8,6 +8,9 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Chronometer
+import android.widget.TableRow
+import com.example.sudoku.R
 import com.example.sudoku.board.gridGeneration.SudokuPresetsDifficulty
 import com.example.sudoku.board.gridGeneration.GridJumbler as gridJumbler
 
@@ -144,7 +147,10 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        val sizePixels = Math.min(widthMeasureSpec, heightMeasureSpec)
+        val timer = findViewById<Chronometer>(R.id.timer)
+        val funcButtons = findViewById<TableRow>(R.id.funcButtons)
+        val maxHeight = (timer.y - (timer.measuredHeight / 2)) - (funcButtons.y + (funcButtons.measuredHeight / 2))
+        val sizePixels = Math.min(widthMeasureSpec, maxHeight.toInt())
         numberTextSize = (sizePixels / 100).toFloat()
         setMeasuredDimension(sizePixels, sizePixels)
     }
@@ -153,6 +159,7 @@ class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(cont
     //function to call is invalidate()
     override fun onDraw(canvas: Canvas) {
         cellSizePixels = (width / size).toFloat()
+
 
         fillCells(canvas)
         drawLines(canvas)
