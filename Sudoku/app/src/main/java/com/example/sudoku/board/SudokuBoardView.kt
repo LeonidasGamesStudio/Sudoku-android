@@ -32,7 +32,11 @@ class NumberEntryArrayCopier(private val sudokuNumbers: Array<Array<SudokuBoardV
     }
 }
 
-class SudokuBoardView (context: Context, attributeSet: AttributeSet) : View(context,attributeSet){
+class SudokuBoardView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr){
     class NumberEntry(private var number: Int, private var type: Int){
         //type: 1 = normal, 3 = conflict, 2 = start, 0 = unfilled/pencilled
         private var pencilNumbers = BooleanArray(10) {false}
