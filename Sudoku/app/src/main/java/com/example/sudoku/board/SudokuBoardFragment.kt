@@ -11,11 +11,13 @@ import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import com.example.sudoku.databinding.FragmentSudokuBoardBinding
 import com.google.android.gms.ads.AdRequest
 
+
 class SudokuBoardFragment : Fragment() {
     private var _binding: FragmentSudokuBoardBinding? = null
     private val binding get() = _binding!!
     private var timeBegin: Long = System.currentTimeMillis()
     private var gameWon: Boolean = false
+    private val boardView = SudokuBoardView(context!!)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +38,8 @@ class SudokuBoardFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        binding.sudokuBoardView.addView(boardView)
         binding.oneButton.setOnClickListener{ addNumber(1) }
         binding.twoButton.setOnClickListener{ addNumber(2) }
         binding.threeButton.setOnClickListener{ addNumber(3) }
@@ -48,19 +52,19 @@ class SudokuBoardFragment : Fragment() {
         binding.eraserButton.setOnClickListener{ addNumber(0) }
 
         binding.pencilButton.setOnClickListener{
-            binding.sudokuBoardView.pencil = !binding.sudokuBoardView.pencil
+            boardView.pencil = boardView.pencil
         }
 
-        binding.undoButton.setOnClickListener{ binding.sudokuBoardView.undoMove()}
+        binding.undoButton.setOnClickListener{ boardView.undoMove()}
 
         val value = arguments?.get("levelNumber")
-        binding.sudokuBoardView.addPresets(value as Int)
+        boardView.addPresets(value as Int)
 
 
         val sharedPref = getDefaultSharedPreferences(activity)
         val numbersString = sharedPref.getString("SAVED_NUMBERS", null)
         if (numbersString != null) {
-            binding.sudokuBoardView.loadSaveData(numbersString)
+            boardView.loadSaveData(numbersString)
         }
 
         val timerLong = sharedPref.getLong("TIMER_STOPPED", 0L)
@@ -78,7 +82,7 @@ class SudokuBoardFragment : Fragment() {
     override fun onDestroyView() {
         if (!gameWon) {
             val sharedPref = getDefaultSharedPreferences(activity)
-            val numbersString = binding.sudokuBoardView.getSaveData()
+            val numbersString = boardView.getSaveData()
             if (sharedPref != null) {
                 with(sharedPref.edit()) {
                     putString("SAVED_NUMBERS", numbersString)
@@ -93,10 +97,10 @@ class SudokuBoardFragment : Fragment() {
 
 
     private fun addNumber (number: Int) {
-        val previousNum = binding.sudokuBoardView.checkCurrentNum()
-        binding.sudokuBoardView.addNumberToMatrix(number)
+        val previousNum = boardView!!.checkCurrentNum()
+        boardView.addNumberToMatrix(number)
         checkForFilledNumbers(number, previousNum)
-        if (binding.sudokuBoardView.checkWinCondition()){
+        if (boardView.checkWinCondition()){
             val timeTaken = System.currentTimeMillis() - timeBegin
             moveToWinScreen(timeTaken)
             return
@@ -111,7 +115,7 @@ class SudokuBoardFragment : Fragment() {
 
     private fun checkForFilledNumbers(number: Int, previousNum: Int){
         if (number != 0) {
-            if (binding.sudokuBoardView.checkFilledNumbers(number)) {
+            if (boardView!!.checkFilledNumbers(number)) {
                 //change string to strikethrough
                 when (number) {
                     1 -> binding.oneButton.isEnabled = false
@@ -140,7 +144,7 @@ class SudokuBoardFragment : Fragment() {
         }
 
         if (previousNum != 0) {
-            if (binding.sudokuBoardView.checkFilledNumbers(previousNum)) {
+            if (boardView!!.checkFilledNumbers(previousNum)) {
                 //change string to strikethrough
                 when (previousNum) {
                     1 -> binding.oneButton.isEnabled = false
