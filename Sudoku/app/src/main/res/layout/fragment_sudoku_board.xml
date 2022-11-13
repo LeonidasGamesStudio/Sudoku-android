@@ -6,22 +6,25 @@
     android:layout_height="match_parent">
 
 <!--    The timer above the board-->
-
-    <Button
-        android:id="@+id/oButton"
-        android:text="@string/_1"
-        style="@style/numberButtons"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
     <Chronometer
         android:id="@+id/timer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="24sp"
-        app:layout_constraintTop_toBottomOf="@id/oButton"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
+
+    <!--    the sudoku board-->
+
+    <com.example.sudoku.board.SudokuBoardView
+        android:id="@+id/sudokuBoardView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/funcButtons"
+        app:layout_constraintTop_toBottomOf="@id/timer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:orientation="horizontal" />
 
 <!--    functional buttons i.e. undo, eraser, hint, pencil-->
     <TableRow
@@ -128,17 +131,5 @@
         ads:adSize="BANNER"
         ads:adUnitId="ca-app-pub-3940256099942544/6300978111">
     </com.google.android.gms.ads.AdView>
-
-    <!--    the sudoku board-->
-
-    <LinearLayout
-        android:id="@+id/sudokuBoardView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/funcButtons"
-        app:layout_constraintTop_toBottomOf="@id/timer"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:orientation="horizontal" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

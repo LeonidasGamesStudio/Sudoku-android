@@ -5,9 +5,12 @@ import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
+import com.example.sudoku.MainActivity
+import com.example.sudoku.R
 import com.example.sudoku.databinding.FragmentSudokuBoardBinding
 import com.google.android.gms.ads.AdRequest
 
@@ -17,7 +20,6 @@ class SudokuBoardFragment : Fragment() {
     private val binding get() = _binding!!
     private var timeBegin: Long = System.currentTimeMillis()
     private var gameWon: Boolean = false
-    private val boardView = SudokuBoardView(context!!)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,13 +35,28 @@ class SudokuBoardFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setDifficultyTitle(arguments?.get("levelNumber") as Int)
         _binding = FragmentSudokuBoardBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    private fun setDifficultyTitle(value: Int) {
 
-        binding.sudokuBoardView.addView(boardView)
+        val difficultyString = when (value){
+            1 -> "Easy"
+            2 -> "Medium"
+            3 -> "Hard"
+            else -> "Expert"
+        }
+        (requireActivity() as MainActivity).supportActionBar?.title =
+            getString(R.string.sudoku_board_fragment_label, difficultyString)
+        return
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val difficultyValue = arguments?.get("levelNumber") as Int
+
+
         binding.oneButton.setOnClickListener{ addNumber(1) }
         binding.twoButton.setOnClickListener{ addNumber(2) }
         binding.threeButton.setOnClickListener{ addNumber(3) }
@@ -52,19 +69,19 @@ class SudokuBoardFragment : Fragment() {
         binding.eraserButton.setOnClickListener{ addNumber(0) }
 
         binding.pencilButton.setOnClickListener{
-            boardView.pencil = boardView.pencil
+            binding.sudokuBoardView.pencil = binding.sudokuBoardView.pencil
         }
 
-        binding.undoButton.setOnClickListener{ boardView.undoMove()}
+        binding.undoButton.setOnClickListener{ binding.sudokuBoardView.undoMove()}
 
-        val value = arguments?.get("levelNumber")
-        boardView.addPresets(value as Int)
+
+        binding.sudokuBoardView.addPresets(difficultyValue as Int)
 
 
         val sharedPref = getDefaultSharedPreferences(activity)
         val numbersString = sharedPref.getString("SAVED_NUMBERS", null)
         if (numbersString != null) {
-            boardView.loadSaveData(numbersString)
+            binding.sudokuBoardView.loadSaveData(numbersString)
         }
 
         val timerLong = sharedPref.getLong("TIMER_STOPPED", 0L)
@@ -82,7 +99,7 @@ class SudokuBoardFragment : Fragment() {
     override fun onDestroyView() {
         if (!gameWon) {
             val sharedPref = getDefaultSharedPreferences(activity)
-            val numbersString = boardView.getSaveData()
+            val numbersString = binding.sudokuBoardView.getSaveData()
             if (sharedPref != null) {
                 with(sharedPref.edit()) {
                     putString("SAVED_NUMBERS", numbersString)
@@ -97,13 +114,20 @@ class SudokuBoardFragment : Fragment() {
 
 
     private fun addNumber (number: Int) {
-        val previousNum = boardView!!.checkCurrentNum()
-        boardView.addNumberToMatrix(number)
-        checkForFilledNumbers(number, previousNum)
-        if (boardView.checkWinCondition()){
-            val timeTaken = System.currentTimeMillis() - timeBegin
-            moveToWinScreen(timeTaken)
-            return
+        if (binding.sudokuBoardView.getSelectedRow() != -1) {
+            val previousNum = binding.sudokuBoardView.checkCurrentNum()
+            binding.sudokuBoardView.addNumberToMatrix(number)
+            checkForFilledNumbers(number, previousNum)
+            if (binding.sudokuBoardView.checkWinCondition()) {
+                val timeTaken = System.currentTimeMillis() - timeBegin
+                moveToWinScreen(timeTaken)
+                return
+            }
+        }else{
+            val text = "No square selected!"
+            val duration = Toast.LENGTH_SHORT
+            val toast = Toast.makeText(context, text, duration)
+            toast.show()
         }
     }
 
@@ -115,7 +139,7 @@ class SudokuBoardFragment : Fragment() {
 
     private fun checkForFilledNumbers(number: Int, previousNum: Int){
         if (number != 0) {
-            if (boardView!!.checkFilledNumbers(number)) {
+            if (binding.sudokuBoardView.checkFilledNumbers(number)) {
                 //change string to strikethrough
                 when (number) {
                     1 -> binding.oneButton.isEnabled = false
@@ -144,7 +168,7 @@ class SudokuBoardFragment : Fragment() {
         }
 
         if (previousNum != 0) {
-            if (boardView!!.checkFilledNumbers(previousNum)) {
+            if (binding.sudokuBoardView.checkFilledNumbers(previousNum)) {
                 //change string to strikethrough
                 when (previousNum) {
                     1 -> binding.oneButton.isEnabled = false

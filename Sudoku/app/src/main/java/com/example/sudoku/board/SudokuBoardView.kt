@@ -8,11 +8,16 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.view.View.MeasureSpec.AT_MOST
+import android.view.ViewGroup
 import android.widget.Chronometer
 import android.widget.TableRow
+import android.widget.Toast
 import com.example.sudoku.R
 import com.example.sudoku.board.gridGeneration.SudokuPresetsDifficulty
+import kotlin.math.abs
 import com.example.sudoku.board.gridGeneration.GridJumbler as gridJumbler
+
 
 const val TYPE_EMPTY = 0
 const val TYPE_NORMAL = 1
@@ -75,11 +80,17 @@ class SudokuBoardView @JvmOverloads constructor(
     private val sqrtSize = 3
     private val size = 9
 
+    private var maxSize = 0F
     private var cellSizePixels = 0F
     private var selectedRow = -1
     private var selectedColumn = -1
     private var numberTextSize = 64F
     private var undoStack = ArrayDeque<UndoStackEntry>()
+
+    fun getSelectedRow(): Int {
+        return selectedRow
+    }
+
     var pencil = false
 
     var sudokuNumbers = Array(9) {Array(9) { NumberEntry(0,0) } }
@@ -151,18 +162,29 @@ class SudokuBoardView @JvmOverloads constructor(
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        val timer = findViewById<Chronometer>(R.id.timer)
-        val funcButtons = findViewById<TableRow>(R.id.funcButtons)
-        val maxHeight = (timer.y - (timer.measuredHeight / 2)) - (funcButtons.y + (funcButtons.measuredHeight / 2))
-        val sizePixels = Math.min(widthMeasureSpec, maxHeight.toInt())
+        val boardFragment: ViewGroup = parent.parent as ViewGroup
+        val timer = boardFragment.findViewById<Chronometer>(R.id.timer)
+        val funcButtons = boardFragment.findViewById<TableRow>(R.id.funcButtons)
+        val sizePixels: Int
+        val newHeightSpec: Int
+        if(timer.y > 0){
+            val maxHeight = abs(((timer.y - timer.height) - (funcButtons.y - funcButtons.height)) + funcButtons.height)
+            newHeightSpec = MeasureSpec.makeMeasureSpec(maxHeight.toInt(), AT_MOST)
+            sizePixels = widthMeasureSpec.coerceAtMost(newHeightSpec)
+        }else{
+            sizePixels = widthMeasureSpec.coerceAtMost(heightMeasureSpec)
+        }
+
+
+
         numberTextSize = (sizePixels / 100).toFloat()
         setMeasuredDimension(sizePixels, sizePixels)
     }
-
     //this is called every time anything is changed. number added, erased, pencil added, hint
     //function to call is invalidate()
 
     override fun onDraw(canvas: Canvas) {
+        requestLayout()
         cellSizePixels = (width / size).toFloat()
 
 
@@ -295,7 +317,7 @@ class SudokuBoardView @JvmOverloads constructor(
 
     //adds a number to either the sudoku number matrix or the pencil number matrix when the button is pressed
     fun addNumberToMatrix(number: Int){
-        if(!pencil) {
+        if (!pencil) {
             undoStack.add(
                 UndoStackEntry(
                     NumberEntry(
@@ -305,8 +327,15 @@ class SudokuBoardView @JvmOverloads constructor(
                 )
             )
             if (number != 0) {          //0 is when the eraser button is selected
-                sudokuNumbers[selectedRow][selectedColumn].changeNum(number, false)    //change num to button pressed
-                sudokuNumbers[selectedRow][selectedColumn].changeType(TYPE_NORMAL, false) //change type to 1
+
+                sudokuNumbers[selectedRow][selectedColumn].changeNum(
+                    number,
+                    false
+                )    //change num to button pressed
+                sudokuNumbers[selectedRow][selectedColumn].changeType(
+                    TYPE_NORMAL,
+                    false
+                ) //change type to 1
             } else {  //if eraser is clicked, change num to 0 and change type to 0 = empty
                 sudokuNumbers[selectedRow][selectedColumn].changeNum(number, false)
                 sudokuNumbers[selectedRow][selectedColumn].changeType(TYPE_EMPTY, false)
@@ -314,7 +343,7 @@ class SudokuBoardView @JvmOverloads constructor(
             checkBoardConflicts()   //checks board for all conflicts. could speed up by only checking
             //affected squares, but seems fast enough for now
             //TODO Near production, see if this is fast enough particularly on older phones
-        }else if (number != 0){
+        } else if (number != 0) {
             sudokuNumbers[selectedRow][selectedColumn].setPencil(number) //set a pencilled number
         }
         invalidate()

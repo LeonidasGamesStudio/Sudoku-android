@@ -7,8 +7,7 @@
 
     <fragment
         android:id="@+id/sudokuBoardFragment"
-        android:name="com.example.sudoku.board.SudokuBoardFragment"
-        android:label="@string/sudoku_board_fragment_label">
+        android:name="com.example.sudoku.board.SudokuBoardFragment">
         <argument
             android:name="levelNumber"
             app:argType="integer"
