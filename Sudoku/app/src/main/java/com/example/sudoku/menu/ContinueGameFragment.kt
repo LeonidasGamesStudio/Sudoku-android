@@ -47,6 +47,7 @@ class ContinueGameFragment : Fragment() {
             with (sharedPref.edit()) {
                 putString("SAVED_NUMBERS", null)
                 putLong("TIMER_STOPPED", 0L)
+                putInt("DIFFICULTY", 0)
                 apply()
             }
             val action = ContinueGameFragmentDirections.actionContinueGameFragmentToDifficultySelect()

@@ -13,6 +13,7 @@ import com.example.sudoku.MainActivity
 import com.example.sudoku.R
 import com.example.sudoku.databinding.FragmentSudokuBoardBinding
 import com.google.android.gms.ads.AdRequest
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 
 class SudokuBoardFragment : Fragment() {
@@ -20,6 +21,7 @@ class SudokuBoardFragment : Fragment() {
     private val binding get() = _binding!!
     private var timeBegin: Long = System.currentTimeMillis()
     private var gameWon: Boolean = false
+    private var levelDifficultyValue = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,14 +37,20 @@ class SudokuBoardFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        setDifficultyTitle(arguments?.get("levelNumber") as Int)
+        levelDifficultyValue = arguments?.getInt("levelNumber")!!
+        setDifficultyTitle(levelDifficultyValue)
         _binding = FragmentSudokuBoardBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     private fun setDifficultyTitle(value: Int) {
-
-        val difficultyString = when (value){
+        var tempValue = value
+        val sharedPref = getDefaultSharedPreferences(activity)
+        val difficultyValue = sharedPref.getInt("DIFFICULTY", 0)
+        if (difficultyValue != 0) {
+            tempValue = difficultyValue
+        }
+        val difficultyString = when (tempValue) {
             1 -> "Easy"
             2 -> "Medium"
             3 -> "Hard"
@@ -54,8 +62,6 @@ class SudokuBoardFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val difficultyValue = arguments?.get("levelNumber") as Int
-
 
         binding.oneButton.setOnClickListener{ addNumber(1) }
         binding.twoButton.setOnClickListener{ addNumber(2) }
@@ -69,13 +75,13 @@ class SudokuBoardFragment : Fragment() {
         binding.eraserButton.setOnClickListener{ addNumber(0) }
 
         binding.pencilButton.setOnClickListener{
-            binding.sudokuBoardView.pencil = binding.sudokuBoardView.pencil
+            binding.sudokuBoardView.pencil != binding.sudokuBoardView.pencil
         }
 
         binding.undoButton.setOnClickListener{ binding.sudokuBoardView.undoMove()}
 
 
-        binding.sudokuBoardView.addPresets(difficultyValue as Int)
+        binding.sudokuBoardView.addPresets(levelDifficultyValue)
 
 
         val sharedPref = getDefaultSharedPreferences(activity)
@@ -104,6 +110,9 @@ class SudokuBoardFragment : Fragment() {
                 with(sharedPref.edit()) {
                     putString("SAVED_NUMBERS", numbersString)
                     putLong("TIMER_STOPPED", binding.timer.base - SystemClock.elapsedRealtime())
+                    if (levelDifficultyValue != 0){
+                        putInt("DIFFICULTY", levelDifficultyValue)
+                    }
                     apply()
                 }
             }
@@ -119,22 +128,30 @@ class SudokuBoardFragment : Fragment() {
             binding.sudokuBoardView.addNumberToMatrix(number)
             checkForFilledNumbers(number, previousNum)
             if (binding.sudokuBoardView.checkWinCondition()) {
+                binding.timer.stop()
                 val timeTaken = System.currentTimeMillis() - timeBegin
-                moveToWinScreen(timeTaken)
+                showWinDialog(timeTaken)
                 return
             }
         }else{
-            val text = "No square selected!"
+            val text = "Please select a cell first!"
             val duration = Toast.LENGTH_SHORT
             val toast = Toast.makeText(context, text, duration)
             toast.show()
         }
     }
 
-    private fun moveToWinScreen(timeTaken: Long){
+    private fun showWinDialog(timeTaken: Long){
         gameWon = true
-        val action = SudokuBoardFragmentDirections.actionSudokuBoardFragmentToWinFragment()
-        view?.findNavController()?.navigate(action)
+        val timeInSecs = timeTaken/1000
+        MaterialAlertDialogBuilder( requireContext())
+            .setTitle(getString(R.string.win_title))
+            .setMessage(getString(R.string.win_message, timeInSecs.toString()))
+            .setCancelable(false)
+            .setNeutralButton("Okay") { _, _ ->
+                val action = SudokuBoardFragmentDirections.actionSudokuBoardFragmentToMainMenuFragment()
+                view?.findNavController()?.navigate(action)
+            }.show()
     }
 
     private fun checkForFilledNumbers(number: Int, previousNum: Int){

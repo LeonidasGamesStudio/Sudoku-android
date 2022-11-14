@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
             with (sharedPref.edit()) {                                   //just for testing for now
                 putString("SAVED_NUMBERS", null)
                 putLong("TIMER_STOPPED", 0L)
+                putInt("DIFFICULTY", 0)
                 commit()
             }
         }

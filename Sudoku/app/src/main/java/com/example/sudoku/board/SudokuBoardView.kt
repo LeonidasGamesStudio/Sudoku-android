@@ -79,8 +79,7 @@ class SudokuBoardView @JvmOverloads constructor(
 
     private val sqrtSize = 3
     private val size = 9
-
-    private var maxSize = 0F
+    
     private var cellSizePixels = 0F
     private var selectedRow = -1
     private var selectedColumn = -1
