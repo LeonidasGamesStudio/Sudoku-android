@@ -1,10 +1,11 @@
 package com.example.sudoku.board.gridGeneration
 
+import com.example.sudoku.board.NumberEntry
 import com.example.sudoku.board.NumberEntryArrayCopier
 import com.example.sudoku.board.SudokuBoardView
 import java.util.Random as rand
 
-class GridJumbler (private val sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>, private val size: Int){
+class GridJumbler (private val sudokuNumbers: Array<Array<NumberEntry>>, private val size: Int){
     fun jumble() {
         rotatePuzzle(sudokuNumbers, size)
         shiftPuzzle(sudokuNumbers, size)
@@ -12,7 +13,7 @@ class GridJumbler (private val sudokuNumbers: Array<Array<SudokuBoardView.Number
         return
     }
 
-    private fun rotatePuzzle(sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>, size: Int) {
+    private fun rotatePuzzle(sudokuNumbers: Array<Array<NumberEntry>>, size: Int) {
         when (rand().nextInt(3)) {
             0 -> return
             1 -> rotate90(sudokuNumbers, size)
@@ -21,7 +22,7 @@ class GridJumbler (private val sudokuNumbers: Array<Array<SudokuBoardView.Number
         return
     }
 
-    private fun rotate90(sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>, size: Int) {
+    private fun rotate90(sudokuNumbers: Array<Array<NumberEntry>>, size: Int) {
         val arrayCopier = NumberEntryArrayCopier(sudokuNumbers, size)
         val originalGrid = arrayCopier.copyArray()
         for (i in 0 until size) {
@@ -33,7 +34,7 @@ class GridJumbler (private val sudokuNumbers: Array<Array<SudokuBoardView.Number
         return
     }
 
-    private fun rotate270(sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>, size: Int) {
+    private fun rotate270(sudokuNumbers: Array<Array<NumberEntry>>, size: Int) {
         val arrayCopier = NumberEntryArrayCopier(sudokuNumbers, size)
         val originalGrid = arrayCopier.copyArray()
         for (x in 0 until size) {
@@ -49,7 +50,7 @@ class GridJumbler (private val sudokuNumbers: Array<Array<SudokuBoardView.Number
         return
     }
 
-    private fun shiftPuzzle(sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>, size: Int) {
+    private fun shiftPuzzle(sudokuNumbers: Array<Array<NumberEntry>>, size: Int) {
         val arrayCopier = NumberEntryArrayCopier(sudokuNumbers, size)
         val originalGrid = arrayCopier.copyArray()
         //do rows
@@ -64,7 +65,7 @@ class GridJumbler (private val sudokuNumbers: Array<Array<SudokuBoardView.Number
         return
     }
 
-    private fun shiftRows(originalGrid: Array<Array<SudokuBoardView.NumberEntry>>, sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>, size: Int) {
+    private fun shiftRows(originalGrid: Array<Array<NumberEntry>>, sudokuNumbers: Array<Array<NumberEntry>>, size: Int) {
         val shiftAmount = rand().nextInt(3)          //for top and bottom squares
         shiftR(originalGrid, sudokuNumbers, 0, 2, shiftAmount, size)
         shiftR(originalGrid, sudokuNumbers, 6, 8, -shiftAmount, size)
@@ -75,7 +76,7 @@ class GridJumbler (private val sudokuNumbers: Array<Array<SudokuBoardView.Number
         }
     }
 
-    private fun swapTopAndBottomOfCentre(originalGrid: Array<Array<SudokuBoardView.NumberEntry>>, sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>,
+    private fun swapTopAndBottomOfCentre(originalGrid: Array<Array<NumberEntry>>, sudokuNumbers: Array<Array<NumberEntry>>,
                                          size: Int){
         for (j in 0 until size){
             sudokuNumbers[3][j].changeNum(originalGrid[5][j].getNum(), true)
@@ -85,7 +86,7 @@ class GridJumbler (private val sudokuNumbers: Array<Array<SudokuBoardView.Number
         }
     }
 
-    private fun shiftR(originalGrid: Array<Array<SudokuBoardView.NumberEntry>>, sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>,
+    private fun shiftR(originalGrid: Array<Array<NumberEntry>>, sudokuNumbers: Array<Array<NumberEntry>>,
                        lowerBound: Int, upperBound: Int, shiftDistance: Int, size: Int){
         for (i in lowerBound..upperBound){
             var nextPosition = i + shiftDistance
@@ -101,7 +102,7 @@ class GridJumbler (private val sudokuNumbers: Array<Array<SudokuBoardView.Number
         }
     }
 
-    private fun shiftColumns(originalGrid: Array<Array<SudokuBoardView.NumberEntry>>, sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>, size: Int){
+    private fun shiftColumns(originalGrid: Array<Array<NumberEntry>>, sudokuNumbers: Array<Array<NumberEntry>>, size: Int){
         val shiftAmount = rand().nextInt(3)          //for top and bottom squares
         shiftC(originalGrid, sudokuNumbers, 0, 2, shiftAmount, size)
         shiftC(originalGrid, sudokuNumbers, 6, 8, -shiftAmount, size)
@@ -112,7 +113,7 @@ class GridJumbler (private val sudokuNumbers: Array<Array<SudokuBoardView.Number
         }
     }
 
-    private fun swapLeftAndRightOfCentre(originalGrid: Array<Array<SudokuBoardView.NumberEntry>>, sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>,
+    private fun swapLeftAndRightOfCentre(originalGrid: Array<Array<NumberEntry>>, sudokuNumbers: Array<Array<NumberEntry>>,
                                          size: Int){
         for (i in 0 until size){
             sudokuNumbers[i][3].changeNum(originalGrid[i][5].getNum(), true)
@@ -122,7 +123,7 @@ class GridJumbler (private val sudokuNumbers: Array<Array<SudokuBoardView.Number
         }
     }
 
-    private fun shiftC(originalGrid: Array<Array<SudokuBoardView.NumberEntry>>, sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>,
+    private fun shiftC(originalGrid: Array<Array<NumberEntry>>, sudokuNumbers: Array<Array<NumberEntry>>,
                        lowerBound: Int, upperBound: Int, shiftDistance: Int, size: Int){
         for (j in lowerBound..upperBound){
             var nextPosition = j + shiftDistance
@@ -138,7 +139,7 @@ class GridJumbler (private val sudokuNumbers: Array<Array<SudokuBoardView.Number
         }
     }
 
-    private fun recodePuzzle(sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>, size: Int) {
+    private fun recodePuzzle(sudokuNumbers: Array<Array<NumberEntry>>, size: Int) {
         val map = getMap(size)
         for (i in 0 until size){
             for (j in 0 until size){

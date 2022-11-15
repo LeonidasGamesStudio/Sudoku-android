@@ -22,11 +22,12 @@ import com.example.sudoku.board.gridGeneration.GridJumbler as gridJumbler
 const val TYPE_EMPTY = 0
 const val TYPE_NORMAL = 1
 const val TYPE_START = 2
-const val TYPE_CONFLICT = 3
+const val TYPE_NORMAL_CONFLICT = 3
+const val TYPE_START_CONFLICT = 4
 
-class NumberEntryArrayCopier(private val sudokuNumbers: Array<Array<SudokuBoardView.NumberEntry>>, private val size: Int){
-    fun copyArray(): Array<Array<SudokuBoardView.NumberEntry>> {
-        val newArray = Array(9) {Array(9) { SudokuBoardView.NumberEntry(0, 0) } }
+class NumberEntryArrayCopier(private val sudokuNumbers: Array<Array<NumberEntry>>, private val size: Int){
+    fun copyArray(): Array<Array<NumberEntry>> {
+        val newArray = Array(9) {Array(9) { NumberEntry(0, 0) } }
         for(i in 0 until size){
             for(j in 0 until size) {
                 newArray[i][j].changeNum(sudokuNumbers[i][j].getNum(), false)
@@ -37,42 +38,49 @@ class NumberEntryArrayCopier(private val sudokuNumbers: Array<Array<SudokuBoardV
     }
 }
 
+class NumberEntry(private var number: Int, private var type: Int){
+    //type: 1 = normal, 3 = conflict, 2 = start, 0 = unfilled/pencilled
+    private var pencilNumbers = BooleanArray(10) {false}
+    fun changeNum(newNum: Int, override: Boolean){
+        if ((type != TYPE_START && type != TYPE_START_CONFLICT) || override) {
+            number = newNum
+        }
+    }
+
+    fun changeType(newType: Int, override: Boolean){
+        if ((type != TYPE_START && type != TYPE_START_CONFLICT) || override){
+            type = newType
+        }
+    }
+
+    fun getNum(): Int {
+        return number
+    }
+
+    fun getType(): Int {
+        return type
+    }
+
+    fun setPencil(number: Int){
+        pencilNumbers[number] = !pencilNumbers[number]
+    }
+
+    fun getPencil(number: Int): Boolean {
+        return pencilNumbers[number]
+    }
+
+    fun clearPencilNumbers() {
+        for (i in pencilNumbers.indices){
+            pencilNumbers[i] = false
+        }
+    }
+}
 class SudokuBoardView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr){
-    class NumberEntry(private var number: Int, private var type: Int){
-        //type: 1 = normal, 3 = conflict, 2 = start, 0 = unfilled/pencilled
-        private var pencilNumbers = BooleanArray(10) {false}
-        fun changeNum(newNum: Int, override: Boolean){
-            if ((type != TYPE_START) || override) {
-                number = newNum
-            }
-        }
 
-        fun changeType(newType: Int, override: Boolean){
-            if ((type != TYPE_START) || override){
-                type = newType
-            }
-        }
-
-        fun getNum(): Int {
-            return number
-        }
-
-        fun getType(): Int {
-            return type
-        }
-
-        fun setPencil(number: Int){
-            pencilNumbers[number] = !pencilNumbers[number]
-        }
-
-        fun getPencil(number: Int): Boolean {
-            return pencilNumbers[number]
-        }
-    }
 
     class UndoStackEntry(val numberEntry: NumberEntry, val posX: Int, val posY: Int)
 
@@ -344,6 +352,9 @@ class SudokuBoardView @JvmOverloads constructor(
             //TODO Near production, see if this is fast enough particularly on older phones
         } else if (number != 0) {
             sudokuNumbers[selectedRow][selectedColumn].setPencil(number) //set a pencilled number
+        } else {
+            //clear pencil numbers
+            sudokuNumbers[selectedRow][selectedColumn].clearPencilNumbers()
         }
         invalidate()
     }
@@ -369,9 +380,23 @@ class SudokuBoardView @JvmOverloads constructor(
             for (i in 0 until size){    //iterate through columns
                 if (sudokuNumbers[i][j].getNum() != 0) {    //if there is a number in the square
                     if (checkCellConflicts(i, j, sudokuNumbers[i][j].getNum())) {  //check for conflicts with specific cell
-                        sudokuNumbers[i][j].changeType(TYPE_CONFLICT, false)  //conflict sets type to 3
+                        if (sudokuNumbers[i][j].getType() == TYPE_NORMAL) {
+                            sudokuNumbers[i][j].changeType(
+                                TYPE_NORMAL_CONFLICT,
+                                false
+                            )  //conflict sets type to 3
+                        }else if (sudokuNumbers[i][j].getType() == TYPE_START) {
+                            sudokuNumbers[i][j].changeType(TYPE_START_CONFLICT, true)
+                        }
                     } else {
-                        sudokuNumbers[i][j].changeType(TYPE_NORMAL, false)   //no clashes sets type to 1
+                        if (sudokuNumbers[i][j].getType() == TYPE_NORMAL_CONFLICT) {
+                            sudokuNumbers[i][j].changeType(
+                                TYPE_NORMAL,
+                                false
+                            )  //conflict sets type to 3
+                        }else if (sudokuNumbers[i][j].getType() == TYPE_START_CONFLICT) {
+                            sudokuNumbers[i][j].changeType(TYPE_START, true)
+                        }
                     }
                 }
             }
@@ -434,7 +459,7 @@ class SudokuBoardView @JvmOverloads constructor(
                     sudokuNumbers[i][j].getType() == TYPE_NORMAL -> {
                         canvas.drawText(sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, numberPaint)
                     }
-                    sudokuNumbers[i][j].getType() == TYPE_CONFLICT -> {
+                    sudokuNumbers[i][j].getType() == TYPE_NORMAL_CONFLICT -> {
                         canvas.drawText(sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, conflictPaint)
                     }
                     sudokuNumbers[i][j].getType() == TYPE_START -> {
@@ -444,6 +469,9 @@ class SudokuBoardView @JvmOverloads constructor(
                             i * cellSizePixels + (cellSizePixels / 2) - yOffset,
                             presetPaint
                         )
+                    }
+                    sudokuNumbers[i][j].getType() == TYPE_START_CONFLICT -> {
+                        canvas.drawText(sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, conflictPaint)
                     }
                     sudokuNumbers[i][j].getType() == TYPE_EMPTY -> {
                         drawPencils(canvas, i, j)
