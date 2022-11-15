@@ -26,8 +26,6 @@ class SudokuBoardFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
         setHasOptionsMenu(true)
     }
 
@@ -75,11 +73,18 @@ class SudokuBoardFragment : Fragment() {
         binding.eraserButton.setOnClickListener{ addNumber(0) }
 
         binding.pencilButton.setOnClickListener{
-            binding.sudokuBoardView.pencil != binding.sudokuBoardView.pencil
+            binding.pencilButton.visibility = View.GONE
+            binding.pencilButtonAlt.visibility = View.VISIBLE
+            binding.sudokuBoardView.pencil = !binding.sudokuBoardView.pencil
+        }
+        binding.pencilButtonAlt.setOnClickListener{
+            binding.pencilButtonAlt.visibility = View.GONE
+            binding.pencilButton.visibility = View.VISIBLE
+
+            binding.sudokuBoardView.pencil = !binding.sudokuBoardView.pencil
         }
 
         binding.undoButton.setOnClickListener{ binding.sudokuBoardView.undoMove()}
-
 
         binding.sudokuBoardView.addPresets(levelDifficultyValue)
 

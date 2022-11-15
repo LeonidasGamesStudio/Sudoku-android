@@ -30,4 +30,13 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">16sp</item>
     </style>
+
+    <style name="altPencil" parent="Widget.MaterialComponents.Button">
+        <item name="android:layout_weight">1</item>
+        <item name="android:padding">2dp</item>
+        <item name="strokeColor">@color/white</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">16sp</item>
+    </style>
 </resources>

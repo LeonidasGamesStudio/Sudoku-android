@@ -40,11 +40,17 @@
             android:text="@string/eraser"
             style="@style/funcButtons"
             />
-
         <Button
             android:id="@+id/pencilButton"
             android:text="@string/pencil"
             style="@style/funcButtons"
+            />
+
+        <Button
+            android:id="@+id/pencilButtonAlt"
+            android:text="@string/pencil"
+            style="@style/altPencil"
+            android:visibility="gone"
             />
 
         <Button
