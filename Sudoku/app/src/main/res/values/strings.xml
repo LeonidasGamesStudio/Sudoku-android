@@ -23,7 +23,7 @@
     <string name="crossed_9"><strike>9</strike></string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="win_title">You win!</string>
-    <string name="win_message">"Time Taken: %1$s seconds"</string>
+    <string name="win_message">"Time Taken: %1$s"</string>
     <string name="action_switch_layout">Action Switch</string>
     <string name="back_button">Back</string>
     <string name="level_select_fragment_label">Level Select</string>

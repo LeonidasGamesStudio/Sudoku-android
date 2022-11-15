@@ -2,6 +2,7 @@ package com.example.sudoku.board
 
 import android.os.Bundle
 import android.os.SystemClock
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -149,11 +150,12 @@ class SudokuBoardFragment : Fragment() {
     private fun showWinDialog(timeTaken: Long){
         gameWon = true
         val timeInSecs = timeTaken/1000
+        val timeString = DateUtils.formatElapsedTime(timeInSecs)
         MaterialAlertDialogBuilder( requireContext())
             .setTitle(getString(R.string.win_title))
-            .setMessage(getString(R.string.win_message, timeInSecs.toString()))
+            .setMessage(getString(R.string.win_message, timeString))
             .setCancelable(false)
-            .setNeutralButton("Okay") { _, _ ->
+            .setPositiveButton("Okay") { _, _ ->
                 val action = SudokuBoardFragmentDirections.actionSudokuBoardFragmentToMainMenuFragment()
                 view?.findNavController()?.navigate(action)
             }.show()
