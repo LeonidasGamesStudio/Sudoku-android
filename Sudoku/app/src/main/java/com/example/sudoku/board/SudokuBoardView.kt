@@ -75,16 +75,14 @@ class NumberEntry(private var number: Int, private var type: Int){
         }
     }
 }
+
+class UndoStackEntry(val numberEntry: NumberEntry, val posX: Int, val posY: Int)
+
 class SudokuBoardView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr){
-
-
-    class UndoStackEntry(val numberEntry: NumberEntry, val posX: Int, val posY: Int)
-
-
     private val sqrtSize = 3
     private val size = 9
 
@@ -501,6 +499,11 @@ class SudokuBoardView @JvmOverloads constructor(
             sudokuNumbers[move.posX][move.posY].changeNum(move.numberEntry.getNum(), false)
             sudokuNumbers[move.posX][move.posY].changeType(move.numberEntry.getType(), false)
             invalidate()
+        }else{
+            val text = "No moves left to undo!"
+            val duration = Toast.LENGTH_SHORT
+            val toast = Toast.makeText(context, text, duration)
+            toast.show()
         }
     }
 
