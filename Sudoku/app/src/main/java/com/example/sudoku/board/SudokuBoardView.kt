@@ -3,7 +3,6 @@ package com.example.sudoku.board
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
@@ -15,66 +14,16 @@ import android.widget.TableRow
 import android.widget.Toast
 import com.example.sudoku.R
 import com.example.sudoku.board.gridGeneration.SudokuPresetsDifficulty
+import com.example.sudoku.board.ui.Paints
 import kotlin.math.abs
-import com.example.sudoku.board.gridGeneration.GridJumbler as gridJumbler
-
+import com.example.sudoku.board.gridGeneration.GridJumbler
+import com.example.sudoku.board.numberEntry.NumberEntry
 
 const val TYPE_EMPTY = 0
 const val TYPE_NORMAL = 1
 const val TYPE_START = 2
 const val TYPE_NORMAL_CONFLICT = 3
 const val TYPE_START_CONFLICT = 4
-
-class NumberEntryArrayCopier(private val sudokuNumbers: Array<Array<NumberEntry>>, private val size: Int){
-    fun copyArray(): Array<Array<NumberEntry>> {
-        val newArray = Array(9) {Array(9) { NumberEntry(0, 0) } }
-        for(i in 0 until size){
-            for(j in 0 until size) {
-                newArray[i][j].changeNum(sudokuNumbers[i][j].getNum(), false)
-                newArray[i][j].changeType(sudokuNumbers[i][j].getType(), false)
-            }
-        }
-        return newArray
-    }
-}
-
-class NumberEntry(private var number: Int, private var type: Int){
-    //type: 1 = normal, 3 = conflict, 2 = start, 0 = unfilled/pencilled
-    private var pencilNumbers = BooleanArray(10) {false}
-    fun changeNum(newNum: Int, override: Boolean){
-        if ((type != TYPE_START && type != TYPE_START_CONFLICT) || override) {
-            number = newNum
-        }
-    }
-
-    fun changeType(newType: Int, override: Boolean){
-        if ((type != TYPE_START && type != TYPE_START_CONFLICT) || override){
-            type = newType
-        }
-    }
-
-    fun getNum(): Int {
-        return number
-    }
-
-    fun getType(): Int {
-        return type
-    }
-
-    fun setPencil(number: Int){
-        pencilNumbers[number] = !pencilNumbers[number]
-    }
-
-    fun getPencil(number: Int): Boolean {
-        return pencilNumbers[number]
-    }
-
-    fun clearPencilNumbers() {
-        for (i in pencilNumbers.indices){
-            pencilNumbers[i] = false
-        }
-    }
-}
 
 class UndoStackEntry(val numberEntry: NumberEntry, val posX: Int, val posY: Int)
 
@@ -85,12 +34,12 @@ class SudokuBoardView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr){
     private val sqrtSize = 3
     private val size = 9
-
     private var cellSizePixels = 0F
     private var selectedRow = -1
     private var selectedColumn = -1
     private var numberTextSize = 64F
     private var undoStack = ArrayDeque<UndoStackEntry>()
+    private val paints = Paints(numberTextSize)
 
     fun getSelectedRow(): Int {
         return selectedRow
@@ -98,72 +47,7 @@ class SudokuBoardView @JvmOverloads constructor(
 
     var pencil = false
 
-    var sudokuNumbers = Array(9) {Array(9) { NumberEntry(0,0) } }
-
-    class paintValues(){    //TODO move paint values into class, if I ever feel like it
-
-
-    }
-
-    private val numberPaint = Paint().apply {
-        style = Paint.Style.FILL
-        color = Color.BLACK
-        strokeWidth = 2F
-        textSize = numberTextSize
-        textAlign = Paint.Align.CENTER
-    }
-
-    private val conflictPaint = Paint().apply {
-        style = Paint.Style.FILL
-        color = Color.RED
-        strokeWidth = 2F
-        textSize = numberTextSize
-        textAlign = Paint.Align.CENTER
-    }
-
-    private val presetPaint = Paint().apply {
-        style = Paint.Style.FILL
-        color = Color.DKGRAY
-        strokeWidth = 2F
-        textSize = numberTextSize
-        textAlign = Paint.Align.CENTER
-    }
-
-    private val pencilPaint = Paint().apply {
-        style = Paint.Style.FILL
-        color = Color.BLACK
-        strokeWidth = 2F
-        textSize = 32F
-        textAlign = Paint.Align.CENTER
-    }
-
-    private val extraThickLinePaint = Paint().apply {
-        style = Paint.Style.STROKE
-        color = Color.BLACK
-        strokeWidth = 16F
-    }
-
-    private val thickLinePaint = Paint().apply {
-        style = Paint.Style.STROKE
-        color = Color.BLACK
-        strokeWidth = 8F
-    }
-
-    private val thinLinePaint = Paint().apply {
-        style = Paint.Style.STROKE
-        color = Color.BLACK
-        strokeWidth = 2F
-    }
-
-    private val selectedCellPaint = Paint().apply {
-        style = Paint.Style.FILL_AND_STROKE
-        color = Color.parseColor("#6ead3a")
-    }
-
-    private val conflictingCellPaint = Paint().apply {
-        style = Paint.Style.FILL_AND_STROKE
-        color = Color.parseColor("#efedef")
-    }
+    var sudokuNumbers = Array(size) { Array(size) { NumberEntry(0,0) } }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
@@ -217,7 +101,7 @@ class SudokuBoardView @JvmOverloads constructor(
                     }
                 }
             }
-            gridJumbler(sudokuNumbers, size).jumble()
+            GridJumbler(sudokuNumbers, size).jumble()
         }
     }
 
@@ -277,11 +161,11 @@ class SudokuBoardView @JvmOverloads constructor(
         for (r in 0..size) {
             for (c in 0..size){
                 if (r == selectedRow && c == selectedColumn) {
-                    fillCell(canvas, r, c, selectedCellPaint)
+                    fillCell(canvas, r, c, paints.selectedCellPaint)
                 } else if (r == selectedRow || c == selectedColumn) {
-                    fillCell(canvas, r, c, conflictingCellPaint)
+                    fillCell(canvas, r, c, paints.conflictingCellPaint)
                 }else if (r / sqrtSize == selectedRow / sqrtSize && c / sqrtSize == selectedColumn / sqrtSize){
-                    fillCell(canvas, r, c, conflictingCellPaint)
+                    fillCell(canvas, r, c, paints.conflictingCellPaint)
                 }
             }
         }
@@ -294,12 +178,12 @@ class SudokuBoardView @JvmOverloads constructor(
 
     //draws lines for the board
     private fun drawLines(canvas: Canvas){
-        canvas.drawRect(0F, 0F, width.toFloat(), height.toFloat(), extraThickLinePaint)
+        canvas.drawRect(0F, 0F, width.toFloat(), height.toFloat(), paints.extraThickLinePaint)
 
         for (i in 0 until size) {
             val paintToUse = when (i % sqrtSize){
-                0 -> thickLinePaint
-                else -> thinLinePaint
+                0 -> paints.thickLinePaint
+                else -> paints.thinLinePaint
             }
 
             canvas.drawLine(
@@ -450,26 +334,26 @@ class SudokuBoardView @JvmOverloads constructor(
 
     //draws all numbers on the board, including pencils
     private fun drawNumbers (canvas: Canvas){
-        val yOffset = ((numberPaint.ascent() + numberPaint.descent()) / 2)
+        val yOffset = ((paints.numberPaint.ascent() + paints.numberPaint.descent()) / 2)
         for (i in 0 until size){
             for (j in 0 until size){
                 when {
                     sudokuNumbers[i][j].getType() == TYPE_NORMAL -> {
-                        canvas.drawText(sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, numberPaint)
+                        canvas.drawText(sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, paints.numberPaint)
                     }
                     sudokuNumbers[i][j].getType() == TYPE_NORMAL_CONFLICT -> {
-                        canvas.drawText(sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, conflictPaint)
+                        canvas.drawText(sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, paints.conflictPaint)
                     }
                     sudokuNumbers[i][j].getType() == TYPE_START -> {
                         canvas.drawText(
                             sudokuNumbers[i][j].getNum().toString(),
                             j * cellSizePixels + (cellSizePixels / 2),
                             i * cellSizePixels + (cellSizePixels / 2) - yOffset,
-                            presetPaint
+                            paints.presetPaint
                         )
                     }
                     sudokuNumbers[i][j].getType() == TYPE_START_CONFLICT -> {
-                        canvas.drawText(sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, conflictPaint)
+                        canvas.drawText(sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, paints.conflictPaint)
                     }
                     sudokuNumbers[i][j].getType() == TYPE_EMPTY -> {
                         drawPencils(canvas, i, j)
@@ -483,10 +367,10 @@ class SudokuBoardView @JvmOverloads constructor(
     private fun drawPencils(canvas: Canvas, i: Int, j: Int){
         for (k in 0..9){
             if (sudokuNumbers[i][j].getPencil(k)){
-                val yOffset = (pencilPaint.ascent() + pencilPaint.descent()) / 2
+                val yOffset = (paints.pencilPaint.ascent() + paints.pencilPaint.descent()) / 2
                 canvas.drawText(k.toString(),
                     (j * cellSizePixels + (((k - 1) % 3) + 0.5) * (cellSizePixels / 3)).toFloat(),
-                    (i * cellSizePixels + (((k - 1) / 3) + 0.5) * (cellSizePixels / 3) - yOffset).toFloat(), pencilPaint)
+                    (i * cellSizePixels + (((k - 1) / 3) + 0.5) * (cellSizePixels / 3) - yOffset).toFloat(), paints.pencilPaint)
             //draw pencil
             }
         }

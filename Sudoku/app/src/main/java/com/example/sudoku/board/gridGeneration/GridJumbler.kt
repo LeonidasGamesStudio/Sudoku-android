@@ -1,9 +1,9 @@
 package com.example.sudoku.board.gridGeneration
 
-import com.example.sudoku.board.NumberEntry
-import com.example.sudoku.board.NumberEntryArrayCopier
-import com.example.sudoku.board.SudokuBoardView
+
+import com.example.sudoku.board.numberEntry.NumberEntryArrayCopier
 import java.util.Random as rand
+import com.example.sudoku.board.numberEntry.NumberEntry
 
 class GridJumbler (private val sudokuNumbers: Array<Array<NumberEntry>>, private val size: Int){
     fun jumble() {
