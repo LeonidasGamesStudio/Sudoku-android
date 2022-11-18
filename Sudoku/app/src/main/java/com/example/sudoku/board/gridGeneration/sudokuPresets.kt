@@ -59,7 +59,9 @@ class SudokuPresetsDifficulty {
             1 -> easyPuzzles[rand().nextInt(easyPuzzles.size)]
             2 -> mediumPuzzles[rand().nextInt(mediumPuzzles.size)]
             3 -> hardPuzzles[rand().nextInt(hardPuzzles.size)]
-            else -> "827154396965327148341689752593468271472513689618972435786235914154796823239841560"
+            4 -> "827154396965327148341689752593468271472513689618972435786235914154796823239841560"
+            //else is used for testing
+            else -> "700305040040060130000402706009040000650970024400500697025704000394106205067009413"
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.example.sudoku.board.numberEntry
 
-import com.example.sudoku.board.TYPE_START
-import com.example.sudoku.board.TYPE_START_CONFLICT
+import com.example.sudoku.board.values.TYPE_START
+import com.example.sudoku.board.values.TYPE_START_CONFLICT
 
 class NumberEntry(private var number: Int, private var type: Int){
     //type: 1 = normal, 3 = conflict, 2 = start, 0 = unfilled/pencilled

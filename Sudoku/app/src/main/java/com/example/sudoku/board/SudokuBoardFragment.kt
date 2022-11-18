@@ -76,18 +76,19 @@ class SudokuBoardFragment : Fragment() {
         binding.pencilButton.setOnClickListener{
             binding.pencilButton.visibility = View.GONE
             binding.pencilButtonAlt.visibility = View.VISIBLE
-            binding.sudokuBoardView.pencil = !binding.sudokuBoardView.pencil
+            binding.sudokuBoardView.changePencil()
         }
         binding.pencilButtonAlt.setOnClickListener{
             binding.pencilButtonAlt.visibility = View.GONE
             binding.pencilButton.visibility = View.VISIBLE
 
-            binding.sudokuBoardView.pencil = !binding.sudokuBoardView.pencil
+            binding.sudokuBoardView.changePencil()
         }
 
         binding.undoButton.setOnClickListener{ binding.sudokuBoardView.undoMove()}
 
         binding.sudokuBoardView.addPresets(levelDifficultyValue)
+        binding.sudokuBoardView.jumbleGrid()
 
 
         val sharedPref = getDefaultSharedPreferences(activity)
