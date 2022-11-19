@@ -13,25 +13,21 @@ const val TYPE_NORMAL_CONFLICT = 3
 const val TYPE_START_CONFLICT = 4
 
 class GridValuesViewModel(private var size: Int) : ViewModel() {
-    var sudokuNumbers = Array(size) { Array(size) { NumberEntry(0,0) } }
-    private var undoStack = ArrayDeque<UndoStackEntry>()
-    var pencil = false
+    private val gridModel = GridModel(size)
 
 
     //gets presets from sudokuPresets and adds them to the sudoku board
     //public fun done on startup in sudoku board fragment
     fun addPresets(presetNum: Int) {
-        val sudokuPresets = SudokuPresetsDifficulty()
-
         if (presetNum != 0) {
-            var presets = sudokuPresets.returnPreset(presetNum)
+            var presets = SudokuPresetsDifficulty().returnPreset(presetNum)
             for (i in 0..8) {
                 for (j in 0..8) {
                     val number = presets.first().digitToInt()
                     presets = presets.drop(1)
                     if (number != 0) {
-                        sudokuNumbers[i][j].changeNum(number, false)
-                        sudokuNumbers[i][j].changeType(TYPE_START, false)
+                        gridModel.sudokuNumbers[i][j].changeNum(number, false)
+                        gridModel.sudokuNumbers[i][j].changeType(TYPE_START, false)
                     }
                 }
             }
@@ -39,18 +35,18 @@ class GridValuesViewModel(private var size: Int) : ViewModel() {
     }
 
     fun jumbleGrid(){
-        GridJumbler(sudokuNumbers, size).jumble()
+        GridJumbler(gridModel.sudokuNumbers, size).jumble()
     }
 
     fun checkCurrentNum(row: Int, col: Int): Int{
-        return sudokuNumbers[row][col].getNum()
+        return gridModel.sudokuNumbers[row][col].getNum()
     }
 
     fun checkFilledNumbers(number: Int): Boolean {
         var amount = 0
         for (r in 0 until size) {
             for (c in 0 until size) {
-                if (sudokuNumbers[r][c].getNum() == number){
+                if (gridModel.sudokuNumbers[r][c].getNum() == number){
                     amount += 1
                 }
             }
@@ -66,8 +62,8 @@ class GridValuesViewModel(private var size: Int) : ViewModel() {
         var numbers = ""
         for (i in 0 until size){
             for (j in 0 until size){
-                numbers += sudokuNumbers[i][j].getNum().toString()
-                numbers += sudokuNumbers[i][j].getType().toString()
+                numbers += gridModel.sudokuNumbers[i][j].getNum().toString()
+                numbers += gridModel.sudokuNumbers[i][j].getType().toString()
             }
         }
         return numbers
@@ -81,51 +77,51 @@ class GridValuesViewModel(private var size: Int) : ViewModel() {
                 saveData = saveData.dropLast(1)
                 val number = saveData.last()
                 saveData = saveData.dropLast(1)
-                sudokuNumbers[i][j].changeNum(number.digitToInt(), true)
-                sudokuNumbers[i][j].changeType(type.digitToInt(), true)
+                gridModel.sudokuNumbers[i][j].changeNum(number.digitToInt(), true)
+                gridModel.sudokuNumbers[i][j].changeType(type.digitToInt(), true)
             }
         }
     }
 
     fun addNumberToMatrix(number: Int, row: Int, col: Int){
-        if (!pencil) {
-            undoStack.add(
+        if (!gridModel.pencil) {
+            gridModel.undoStack.add(
                 UndoStackEntry(
                     NumberEntry(
-                        sudokuNumbers[row][col].getNum(),
-                        sudokuNumbers[row][col].getType()
+                        gridModel.sudokuNumbers[row][col].getNum(),
+                        gridModel.sudokuNumbers[row][col].getType()
                     ), row, col
                 )
             )
             if (number != 0) {          //0 is when the eraser button is selected
 
-                sudokuNumbers[row][col].changeNum(
+                gridModel.sudokuNumbers[row][col].changeNum(
                     number,
                     false
                 )    //change num to button pressed
-                sudokuNumbers[row][col].changeType(
+                gridModel.sudokuNumbers[row][col].changeType(
                     TYPE_NORMAL,
                     false
                 ) //change type to 1
             } else {  //if eraser is clicked, change num to 0 and change type to 0 = empty
-                sudokuNumbers[row][col].changeNum(number, false)
-                sudokuNumbers[row][col].changeType(TYPE_EMPTY, false)
+                gridModel.sudokuNumbers[row][col].changeNum(number, false)
+                gridModel.sudokuNumbers[row][col].changeType(TYPE_EMPTY, false)
             }
             checkBoardConflicts()   //checks board for all conflicts. could speed up by only checking
             //affected squares, but seems fast enough for now
             //TODO Near production, see if this is fast enough particularly on older phones
         } else if (number != 0) {
-            sudokuNumbers[row][col].setPencil(number) //set a pencilled number
+            gridModel.sudokuNumbers[row][col].setPencil(number) //set a pencilled number
         } else {
             //clear pencil numbers
-            sudokuNumbers[row][col].clearPencilNumbers()
+            gridModel.sudokuNumbers[row][col].clearPencilNumbers()
         }
     }
 
     fun checkWinCondition(): Boolean {
         for (i in 0 until size){
             for (j in 0 until size){
-                if (sudokuNumbers[i][j].getType() != 1 && sudokuNumbers[i][j].getType() != TYPE_START){
+                if (gridModel.sudokuNumbers[i][j].getType() != 1 && gridModel.sudokuNumbers[i][j].getType() != TYPE_START){
                     return false
                 }
             }
@@ -138,29 +134,29 @@ class GridValuesViewModel(private var size: Int) : ViewModel() {
     private fun checkBoardConflicts() {
         for (j in 0 until size) {        //iterate through rows
             for (i in 0 until size) {    //iterate through columns
-                if (sudokuNumbers[i][j].getNum() != 0) {    //if there is a number in the square
+                if (gridModel.sudokuNumbers[i][j].getNum() != 0) {    //if there is a number in the square
                     if (checkCellConflicts(
                             i,
                             j,
-                            sudokuNumbers[i][j].getNum()
+                            gridModel.sudokuNumbers[i][j].getNum()
                         )
                     ) {  //check for conflicts with specific cell
-                        if (sudokuNumbers[i][j].getType() == TYPE_NORMAL) {
-                            sudokuNumbers[i][j].changeType(
+                        if (gridModel.sudokuNumbers[i][j].getType() == TYPE_NORMAL) {
+                            gridModel.sudokuNumbers[i][j].changeType(
                                 TYPE_NORMAL_CONFLICT,
                                 false
                             )  //conflict sets type to 3
-                        } else if (sudokuNumbers[i][j].getType() == TYPE_START) {
-                            sudokuNumbers[i][j].changeType(TYPE_START_CONFLICT, true)
+                        } else if (gridModel.sudokuNumbers[i][j].getType() == TYPE_START) {
+                            gridModel.sudokuNumbers[i][j].changeType(TYPE_START_CONFLICT, true)
                         }
                     } else {
-                        if (sudokuNumbers[i][j].getType() == TYPE_NORMAL_CONFLICT) {
-                            sudokuNumbers[i][j].changeType(
+                        if (gridModel.sudokuNumbers[i][j].getType() == TYPE_NORMAL_CONFLICT) {
+                            gridModel.sudokuNumbers[i][j].changeType(
                                 TYPE_NORMAL,
                                 false
                             )  //conflict sets type to 3
-                        } else if (sudokuNumbers[i][j].getType() == TYPE_START_CONFLICT) {
-                            sudokuNumbers[i][j].changeType(TYPE_START, true)
+                        } else if (gridModel.sudokuNumbers[i][j].getType() == TYPE_START_CONFLICT) {
+                            gridModel.sudokuNumbers[i][j].changeType(TYPE_START, true)
                         }
                     }
                 }
@@ -178,7 +174,7 @@ class GridValuesViewModel(private var size: Int) : ViewModel() {
     private fun checkRow(row: Int, column: Int, number: Int): Boolean {
         for (i in 0 until size){
             if(i != column){
-                if (sudokuNumbers[row][i].getNum() == number){
+                if (gridModel.sudokuNumbers[row][i].getNum() == number){
                     return true
                 }
             }
@@ -190,7 +186,7 @@ class GridValuesViewModel(private var size: Int) : ViewModel() {
     private fun checkColumn(row: Int, column: Int, number: Int): Boolean {
         for (i in 0 until size){
             if (i != row){
-                if (sudokuNumbers[i][column].getNum() == number){
+                if (gridModel.sudokuNumbers[i][column].getNum() == number){
                     return true
                 }
             }
@@ -206,7 +202,7 @@ class GridValuesViewModel(private var size: Int) : ViewModel() {
         for (i in squareX..squareX + 2){
             for (j in squareY..squareY + 2){
                 if (i != row || j != column){
-                    if (sudokuNumbers[i][j].getNum() == number){
+                    if (gridModel.sudokuNumbers[i][j].getNum() == number){
                         return true
                     }
                 }
@@ -216,11 +212,11 @@ class GridValuesViewModel(private var size: Int) : ViewModel() {
     }
 
     fun undoMove(): Boolean{
-        val move = undoStack.lastOrNull()
-        undoStack.removeLastOrNull()
+        val move = gridModel.undoStack.lastOrNull()
+        gridModel.undoStack.removeLastOrNull()
         return if(move != null) {
-            sudokuNumbers[move.posX][move.posY].changeNum(move.numberEntry.getNum(), false)
-            sudokuNumbers[move.posX][move.posY].changeType(move.numberEntry.getType(), false)
+            gridModel.sudokuNumbers[move.posX][move.posY].changeNum(move.numberEntry.getNum(), false)
+            gridModel.sudokuNumbers[move.posX][move.posY].changeType(move.numberEntry.getType(), false)
             true
         }else{
             false
