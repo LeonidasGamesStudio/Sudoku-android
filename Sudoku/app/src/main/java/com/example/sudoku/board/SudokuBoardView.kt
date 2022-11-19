@@ -169,24 +169,24 @@ class SudokuBoardView @JvmOverloads constructor(
         for (i in 0 until size){
             for (j in 0 until size){
                 when {
-                    gridViewModel.sudokuNumbers[i][j].getType() == TYPE_NORMAL -> {
-                        canvas.drawText(gridViewModel.sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, paints.numberPaint)
+                    gridViewModel.getType(i, j) == TYPE_NORMAL -> {
+                        canvas.drawText(gridViewModel.getNum(i, j).toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, paints.numberPaint)
                     }
-                    gridViewModel.sudokuNumbers[i][j].getType() == TYPE_NORMAL_CONFLICT -> {
-                        canvas.drawText(gridViewModel.sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, paints.conflictPaint)
+                    gridViewModel.getType(i, j) == TYPE_NORMAL_CONFLICT -> {
+                        canvas.drawText(gridViewModel.getNum(i, j).toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, paints.conflictPaint)
                     }
-                    gridViewModel.sudokuNumbers[i][j].getType() == TYPE_START -> {
+                    gridViewModel.getType(i, j) == TYPE_START -> {
                         canvas.drawText(
-                            gridViewModel.sudokuNumbers[i][j].getNum().toString(),
+                            gridViewModel.getNum(i, j).toString(),
                             j * cellSizePixels + (cellSizePixels / 2),
                             i * cellSizePixels + (cellSizePixels / 2) - yOffset,
                             paints.presetPaint
                         )
                     }
-                    gridViewModel.sudokuNumbers[i][j].getType() == TYPE_START_CONFLICT -> {
-                        canvas.drawText(gridViewModel.sudokuNumbers[i][j].getNum().toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, paints.conflictPaint)
+                    gridViewModel.getType(i, j) == TYPE_START_CONFLICT -> {
+                        canvas.drawText(gridViewModel.getNum(i, j).toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, paints.conflictPaint)
                     }
-                    gridViewModel.sudokuNumbers[i][j].getType() == TYPE_EMPTY -> {
+                    gridViewModel.getType(i, j) == TYPE_EMPTY -> {
                         drawPencils(canvas, i, j)
                     }
                 }
@@ -197,7 +197,7 @@ class SudokuBoardView @JvmOverloads constructor(
 //    function draws all pencil marks in. might need to check sizes
     private fun drawPencils(canvas: Canvas, i: Int, j: Int){
         for (k in 0..9){
-            if (gridViewModel.sudokuNumbers[i][j].getPencil(k)){
+            if (gridViewModel.getPencil(k, i, j)){
                 val yOffset = (paints.pencilPaint.ascent() + paints.pencilPaint.descent()) / 2
                 canvas.drawText(k.toString(),
                     (j * cellSizePixels + (((k - 1) % 3) + 0.5) * (cellSizePixels / 3)).toFloat(),
@@ -239,7 +239,7 @@ class SudokuBoardView @JvmOverloads constructor(
     }
 
     fun changePencil(){
-        gridViewModel.pencil = !gridViewModel.pencil
+        gridViewModel.changePencil()
     }
 
     fun jumbleGrid() {

@@ -222,4 +222,20 @@ class GridValuesViewModel(private var size: Int) : ViewModel() {
             false
         }
     }
+
+    fun getType(row: Int, column: Int): Int {
+        return gridModel.sudokuNumbers[row][column].getType()
+    }
+
+    fun getNum(row: Int, column: Int): Int {
+        return gridModel.sudokuNumbers[row][column].getNum()
+    }
+
+    fun getPencil(pencilNum: Int, row: Int, column: Int): Boolean {
+        return gridModel.sudokuNumbers[row][column].getPencil(pencilNum)
+    }
+
+    fun changePencil() {
+        gridModel.pencil = !gridModel.pencil
+    }
 }
