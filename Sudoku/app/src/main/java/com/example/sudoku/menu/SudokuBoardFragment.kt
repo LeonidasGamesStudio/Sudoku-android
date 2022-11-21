@@ -1,4 +1,4 @@
-package com.example.sudoku.board
+package com.example.sudoku.menu
 
 import android.os.Bundle
 import android.os.SystemClock
@@ -12,17 +12,18 @@ import androidx.navigation.findNavController
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import com.example.sudoku.MainActivity
 import com.example.sudoku.R
-import com.example.sudoku.databinding.FragmentSudokuBoardBinding
+import com.example.sudoku.databinding.FragmentGameViewBinding
 import com.google.android.gms.ads.AdRequest
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 
 class SudokuBoardFragment : Fragment() {
-    private var _binding: FragmentSudokuBoardBinding? = null
+    private var _binding: FragmentGameViewBinding? = null
     private val binding get() = _binding!!
     private var timeBegin: Long = System.currentTimeMillis()
     private var gameWon: Boolean = false
     private var levelDifficultyValue = 0
+    private val sharedPref = getDefaultSharedPreferences(activity)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,36 +33,56 @@ class SudokuBoardFragment : Fragment() {
 
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        levelDifficultyValue = arguments?.getInt("levelNumber")!!
-        setDifficultyTitle(levelDifficultyValue)
-        _binding = FragmentSudokuBoardBinding.inflate(inflater, container, false)
+        // Sets the title of the fragment. Done dynamically as difficulty is an argument from
+        // DifficultySelect but is stored in SharedPref if continuing a game
+        setDifficultyTitle()
+        _binding = FragmentGameViewBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    private fun setDifficultyTitle(value: Int) {
-        var tempValue = value
-        val sharedPref = getDefaultSharedPreferences(activity)
-        val difficultyValue = sharedPref.getInt("DIFFICULTY", 0)
-        if (difficultyValue != 0) {
-            tempValue = difficultyValue
-        }
-        val difficultyString = when (tempValue) {
+    // Sets the title of the fragment based on the current difficulty level
+    private fun setDifficultyTitle() {
+        (requireActivity() as MainActivity).supportActionBar?.title =
+            getString(R.string.sudoku_board_fragment_label, getDifficultyString())
+    }
+
+    // Returns the string for the difficulty title
+    private fun getDifficultyString(): String {
+        return when (getDifficultyLevel()) {
             1 -> "Easy"
             2 -> "Medium"
             3 -> "Hard"
             else -> "Expert"
         }
-        (requireActivity() as MainActivity).supportActionBar?.title =
-            getString(R.string.sudoku_board_fragment_label, difficultyString)
-        return
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    // Returns a difficulty value to determine the difficulty string
+    private fun getDifficultyLevel(): Int {
+        val savedDifficulty = getDefaultSharedPreferences(activity)
+            .getInt("DIFFICULTY", 0)
+        return if (savedDifficulty != 0) {
+            savedDifficulty
+        } else {
+            // Non-null asserted call as the difficulty select menu AND the continue menu both
+            // send an argument
+            arguments?.getInt("levelNumber")!!
+        }
+    }
 
+    // Runs set up for the game
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        setUpNumberButtons()
+        setUpPencilButtons()
+        setUpOtherFuncButtons()
+        setUpBoard()
+        setUpTimer()
+        binding.adView.loadAd(AdRequest.Builder().build())
+    }
+
+    // Sets click listeners to the number buttons
+    private fun setUpNumberButtons() {
         binding.oneButton.setOnClickListener{ addNumber(1) }
         binding.twoButton.setOnClickListener{ addNumber(2) }
         binding.threeButton.setOnClickListener{ addNumber(3) }
@@ -71,8 +92,10 @@ class SudokuBoardFragment : Fragment() {
         binding.sevenButton.setOnClickListener{ addNumber(7) }
         binding.eightButton.setOnClickListener{ addNumber(8) }
         binding.nineButton.setOnClickListener{ addNumber(9) }
-        binding.eraserButton.setOnClickListener{ addNumber(0) }
+    }
 
+    // Sets up pencil button and alternate pencil button
+    private fun setUpPencilButtons() {
         binding.pencilButton.setOnClickListener{
             binding.pencilButton.visibility = View.GONE
             binding.pencilButtonAlt.visibility = View.VISIBLE
@@ -81,23 +104,34 @@ class SudokuBoardFragment : Fragment() {
         binding.pencilButtonAlt.setOnClickListener{
             binding.pencilButtonAlt.visibility = View.GONE
             binding.pencilButton.visibility = View.VISIBLE
-
             binding.sudokuBoardView.changePencil()
         }
+    }
 
-        binding.undoButton.setOnClickListener{ binding.sudokuBoardView.undoMove() }
-        binding.hintButton.setOnClickListener{ binding.sudokuBoardView.showHint() }
+    //Sets up the other functional buttons (Undo, Hint, Eraser)
+    private fun setUpOtherFuncButtons() {
+        binding.undoButton.setOnClickListener{ binding.sudokuBoardView.undoMove()}
+        binding.eraserButton.setOnClickListener{ addNumber(0) }
+    }
 
-        binding.sudokuBoardView.addPresets(levelDifficultyValue)
-        binding.sudokuBoardView.jumbleGrid()
+    //Adds numbers to the board and jumbles them if there is no save data
+    private fun setUpBoard() {
+        if (levelDifficultyValue != 0) {
+            binding.sudokuBoardView.addPresets(levelDifficultyValue)
+            binding.sudokuBoardView.jumbleGrid()
+        } else {
+            loadSaveData()
+        }
+    }
 
-
-        val sharedPref = getDefaultSharedPreferences(activity)
+    private fun loadSaveData() {
         val numbersString = sharedPref.getString("SAVED_NUMBERS", null)
         if (numbersString != null) {
             binding.sudokuBoardView.loadSaveData(numbersString)
         }
+    }
 
+    private fun setUpTimer() {
         val timerLong = sharedPref.getLong("TIMER_STOPPED", 0L)
         if (timerLong < 0) {
             binding.timer.base = timerLong + SystemClock.elapsedRealtime()
@@ -105,9 +139,6 @@ class SudokuBoardFragment : Fragment() {
         }else{
             binding.timer.start()
         }
-
-        val adRequest = AdRequest.Builder().build()
-        binding.adView.loadAd(adRequest)
     }
 
     override fun onDestroyView() {
