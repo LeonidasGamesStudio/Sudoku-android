@@ -8,11 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.example.sudoku.databinding.FragmentDifficultySelectBinding
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
 class DifficultySelect : Fragment() {
 
     private var _binding: FragmentDifficultySelectBinding? = null
@@ -31,48 +26,23 @@ class DifficultySelect : Fragment() {
         return binding.root
     }
 
+    // Sets up difficulty selection buttons. 4 buttons for 4 levels of difficulty from 1-4
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.easyButton.setOnClickListener{
-            val action = DifficultySelectDirections.actionDifficultySelectToSudokuBoardFragment(1)
-            view.findNavController().navigate(action)
-        }
-        binding.mediumButton.setOnClickListener{
-            val action = DifficultySelectDirections.actionDifficultySelectToSudokuBoardFragment(2)
-            view.findNavController().navigate(action)
-        }
-        binding.hardButton.setOnClickListener{
-            val action = DifficultySelectDirections.actionDifficultySelectToSudokuBoardFragment(3)
-            view.findNavController().navigate(action)
-        }
-        binding.expertButton.setOnClickListener{
-            val action = DifficultySelectDirections.actionDifficultySelectToSudokuBoardFragment(4)
-            view.findNavController().navigate(action)
-        }
+        binding.easyButton.setOnClickListener{ navigateToBoard(1) }
+        binding.mediumButton.setOnClickListener{ navigateToBoard(2) }
+        binding.hardButton.setOnClickListener{ navigateToBoard(3) }
+        binding.expertButton.setOnClickListener{ navigateToBoard(4) }
+    }
+
+    // Navigates to GameView with a difficulty selected. Easy (1), Medium (2), Hard (3), Expert (4)
+    private fun navigateToBoard(difficulty: Int){
+        view?.findNavController()?.navigate(DifficultySelectDirections
+            .actionDifficultySelectToSudokuBoardFragment(difficulty))
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment DifficulySelect.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            DifficultySelect().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
     }
 }

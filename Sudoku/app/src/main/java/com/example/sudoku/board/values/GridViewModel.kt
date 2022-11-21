@@ -14,8 +14,6 @@ const val TYPE_START_CONFLICT = 4
 
 class GridValuesViewModel(private var size: Int) : ViewModel() {
     private val gridModel = GridModel(size)
-
-
     //gets presets from sudokuPresets and adds them to the sudoku board
     //public fun done on startup in sudoku board fragment
     fun addPresets(presetNum: Int) {
