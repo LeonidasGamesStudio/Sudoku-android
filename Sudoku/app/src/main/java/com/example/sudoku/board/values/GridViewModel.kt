@@ -238,4 +238,8 @@ class GridValuesViewModel(private var size: Int) : ViewModel() {
     fun changePencil() {
         gridModel.pencil = !gridModel.pencil
     }
+
+    fun findHint() {
+        
+    }
 }

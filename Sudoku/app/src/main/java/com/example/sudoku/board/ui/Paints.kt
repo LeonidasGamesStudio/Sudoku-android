@@ -3,7 +3,7 @@ package com.example.sudoku.board.ui
 import android.graphics.Color
 import android.graphics.Paint
 
-class Paints (private val numberTextSize: Float){
+class Paints(private val numberTextSize: Float, private val primaryColor: Int){
     val numberPaint = Paint().apply {
         style = Paint.Style.FILL
         color = Color.BLACK
@@ -22,8 +22,9 @@ class Paints (private val numberTextSize: Float){
 
     val presetPaint = Paint().apply {
         style = Paint.Style.FILL
-        color = Color.DKGRAY
-        strokeWidth = 2F
+        color = primaryColor
+        colorFilter
+        strokeWidth = 16F
         textSize = numberTextSize
         textAlign = Paint.Align.CENTER
     }

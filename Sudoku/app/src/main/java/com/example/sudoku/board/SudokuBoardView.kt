@@ -33,7 +33,7 @@ class SudokuBoardView @JvmOverloads constructor(
     private var selectedColumn = -1
     private var numberTextSize = 64F
 
-    private val paints = Paints(numberTextSize)
+    private val paints = Paints(numberTextSize, R.attr.colorPrimary)
 
     fun getSelectedRow(): Int {
         return selectedRow
@@ -244,5 +244,10 @@ class SudokuBoardView @JvmOverloads constructor(
 
     fun jumbleGrid() {
         gridViewModel.jumbleGrid()
+    }
+
+    fun showHint() {
+        TODO("Not yet implemented")
+        gridViewModel.findHint()
     }
 }

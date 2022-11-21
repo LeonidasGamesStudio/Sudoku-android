@@ -85,7 +85,8 @@ class SudokuBoardFragment : Fragment() {
             binding.sudokuBoardView.changePencil()
         }
 
-        binding.undoButton.setOnClickListener{ binding.sudokuBoardView.undoMove()}
+        binding.undoButton.setOnClickListener{ binding.sudokuBoardView.undoMove() }
+        binding.hintButton.setOnClickListener{ binding.sudokuBoardView.showHint() }
 
         binding.sudokuBoardView.addPresets(levelDifficultyValue)
         binding.sudokuBoardView.jumbleGrid()
