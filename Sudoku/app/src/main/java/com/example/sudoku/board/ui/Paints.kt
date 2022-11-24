@@ -3,10 +3,34 @@ package com.example.sudoku.board.ui
 import android.graphics.Color
 import android.graphics.Paint
 
-class Paints(private val numberTextSize: Float, private val primaryColor: Int){
+class Paints(
+    private val numberTextSize: Float,
+    private val primary: Int,
+    private val primaryVariant: Int,
+    private val onPrimary: Int,
+    private val secondary: Int,
+    private val secondaryVariant: Int,
+    private val onSecondary: Int
+){
     val numberPaint = Paint().apply {
         style = Paint.Style.FILL
-        color = Color.BLACK
+        color = primary
+        strokeWidth = 2F
+        textSize = numberTextSize
+        textAlign = Paint.Align.CENTER
+    }
+
+    val selectedNumberPaint = Paint().apply {
+        style = Paint.Style.FILL
+        color = secondary
+        strokeWidth = 2F
+        textSize = numberTextSize
+        textAlign = Paint.Align.CENTER
+    }
+
+    val adjacentNumberPaint = Paint().apply {
+        style = Paint.Style.FILL
+        color = secondaryVariant
         strokeWidth = 2F
         textSize = numberTextSize
         textAlign = Paint.Align.CENTER
@@ -22,7 +46,25 @@ class Paints(private val numberTextSize: Float, private val primaryColor: Int){
 
     val presetPaint = Paint().apply {
         style = Paint.Style.FILL
-        color = primaryColor
+        color = onSecondary
+        colorFilter
+        strokeWidth = 16F
+        textSize = numberTextSize
+        textAlign = Paint.Align.CENTER
+    }
+
+    val selectedPresetPaint = Paint().apply {
+        style = Paint.Style.FILL
+        color = onPrimary
+        colorFilter
+        strokeWidth = 16F
+        textSize = numberTextSize
+        textAlign = Paint.Align.CENTER
+    }
+
+    val adjacentPresetPaint = Paint().apply {
+        style = Paint.Style.FILL
+        color = onPrimary
         colorFilter
         strokeWidth = 16F
         textSize = numberTextSize
@@ -57,11 +99,11 @@ class Paints(private val numberTextSize: Float, private val primaryColor: Int){
 
     val selectedCellPaint = Paint().apply {
         style = Paint.Style.FILL_AND_STROKE
-        color = Color.parseColor("#6ead3a")
+        color = primaryVariant
     }
 
     val conflictingCellPaint = Paint().apply {
         style = Paint.Style.FILL_AND_STROKE
-        color = Color.parseColor("#efedef")
+        color = primary
     }
 }

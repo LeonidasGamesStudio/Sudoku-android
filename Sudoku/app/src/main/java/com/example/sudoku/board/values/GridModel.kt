@@ -1,6 +1,6 @@
 package com.example.sudoku.board.values
 
-import com.example.sudoku.board.UndoStackEntry
+import com.example.sudoku.board.ui.UndoStackEntry
 import com.example.sudoku.board.numberEntry.NumberEntry
 
 class GridModel(size: Int) {

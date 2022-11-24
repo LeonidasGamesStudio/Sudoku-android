@@ -16,7 +16,7 @@
 
     <!--    the sudoku board-->
 
-    <com.example.sudoku.board.SudokuBoardView
+    <com.example.sudoku.board.ui.SudokuBoardView
         android:id="@+id/sudokuBoardView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -56,12 +56,6 @@
         <Button
             android:id="@+id/undoButton"
             android:text="@string/undo"
-            style="@style/funcButtons"
-            />
-
-        <Button
-            android:id="@+id/hintButton"
-            android:text="@string/hint"
             style="@style/funcButtons"
             />
     </TableRow>

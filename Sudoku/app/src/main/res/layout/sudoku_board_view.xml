@@ -3,6 +3,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".board.SudokuBoardView">
+    tools:context=".board.ui.SudokuBoardView">
 
 </androidx.constraintlayout.widget.ConstraintLayout>

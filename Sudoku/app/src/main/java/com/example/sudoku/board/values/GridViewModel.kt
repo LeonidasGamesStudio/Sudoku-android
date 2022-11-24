@@ -1,7 +1,7 @@
 package com.example.sudoku.board.values
 
 import androidx.lifecycle.ViewModel
-import com.example.sudoku.board.UndoStackEntry
+import com.example.sudoku.board.ui.UndoStackEntry
 import com.example.sudoku.board.gridGeneration.GridJumbler
 import com.example.sudoku.board.gridGeneration.SudokuPresetsDifficulty
 import com.example.sudoku.board.numberEntry.NumberEntry
@@ -235,9 +235,5 @@ class GridValuesViewModel(private var size: Int) : ViewModel() {
 
     fun changePencil() {
         gridModel.pencil = !gridModel.pencil
-    }
-
-    fun findHint() {
-        
     }
 }

@@ -1,4 +1,4 @@
-package com.example.sudoku.board
+package com.example.sudoku.board.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -13,10 +13,10 @@ import android.widget.Chronometer
 import android.widget.TableRow
 import android.widget.Toast
 import com.example.sudoku.R
-import com.example.sudoku.board.ui.Paints
-import kotlin.math.abs
 import com.example.sudoku.board.numberEntry.NumberEntry
 import com.example.sudoku.board.values.*
+import com.google.android.material.color.MaterialColors
+import kotlin.math.abs
 
 
 class UndoStackEntry(val numberEntry: NumberEntry, val posX: Int, val posY: Int)
@@ -33,7 +33,14 @@ class SudokuBoardView @JvmOverloads constructor(
     private var selectedColumn = -1
     private var numberTextSize = 64F
 
-    private val paints = Paints(numberTextSize, R.attr.colorPrimary)
+    private val paints = Paints(numberTextSize,
+        MaterialColors.getColor(this, R.attr.colorPrimary),
+        MaterialColors.getColor(this, R.attr.colorPrimaryVariant),
+        MaterialColors.getColor(this, R.attr.colorOnPrimary),
+        MaterialColors.getColor(this, R.attr.colorSecondary),
+        MaterialColors.getColor(this, R.attr.colorSecondaryVariant),
+        MaterialColors.getColor(this, R.attr.colorOnSecondary)
+    )
 
     fun getSelectedRow(): Int {
         return selectedRow
@@ -167,34 +174,74 @@ class SudokuBoardView @JvmOverloads constructor(
     private fun drawNumbers (canvas: Canvas){
         val yOffset = ((paints.numberPaint.ascent() + paints.numberPaint.descent()) / 2)
         for (i in 0 until size){
-            for (j in 0 until size){
-                when {
-                    gridViewModel.getType(i, j) == TYPE_NORMAL -> {
-                        canvas.drawText(gridViewModel.getNum(i, j).toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, paints.numberPaint)
-                    }
-                    gridViewModel.getType(i, j) == TYPE_NORMAL_CONFLICT -> {
-                        canvas.drawText(gridViewModel.getNum(i, j).toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, paints.conflictPaint)
-                    }
-                    gridViewModel.getType(i, j) == TYPE_START -> {
-                        canvas.drawText(
-                            gridViewModel.getNum(i, j).toString(),
-                            j * cellSizePixels + (cellSizePixels / 2),
-                            i * cellSizePixels + (cellSizePixels / 2) - yOffset,
-                            paints.presetPaint
-                        )
-                    }
-                    gridViewModel.getType(i, j) == TYPE_START_CONFLICT -> {
-                        canvas.drawText(gridViewModel.getNum(i, j).toString(), j * cellSizePixels + (cellSizePixels / 2), i * cellSizePixels + (cellSizePixels / 2) - yOffset, paints.conflictPaint)
-                    }
-                    gridViewModel.getType(i, j) == TYPE_EMPTY -> {
-                        drawPencils(canvas, i, j)
-                    }
+            for (j in 0 until size) {
+                val number = gridViewModel.getNum(i, j)
+                if (number != 0) {
+                    val paint = chooseColor(i, j)
+                    canvas.drawText(
+                        number.toString(),
+                        j * cellSizePixels + (cellSizePixels / 2),
+                        i * cellSizePixels + (cellSizePixels / 2) - yOffset,
+                        paint
+                    )
                 }
             }
         }
     }
 
-//    function draws all pencil marks in. might need to check sizes
+    private fun chooseColor(row: Int, col: Int): Paint {
+        val selected = isCellSelected(row, col)
+        val preset = isCellPreset(row, col)
+        val conflict = isCellConflicted(row, col)
+        return if (conflict) {
+            paints.conflictPaint
+        } else {
+            if (!preset) {
+                when (selected) {
+                    1 -> paints.selectedNumberPaint
+                    2 -> paints.adjacentNumberPaint
+                    else -> paints.numberPaint
+                }
+            } else {
+                when (selected) {
+                    1 -> paints.selectedPresetPaint
+                    2 -> paints.adjacentPresetPaint
+                    else -> paints.presetPaint
+                }
+            }
+        }
+    }
+
+    private fun isCellConflicted(row: Int, col: Int): Boolean {
+        return gridViewModel.getType(row, col) == TYPE_START_CONFLICT ||
+                gridViewModel.getType(row, col) == TYPE_NORMAL_CONFLICT
+    }
+
+    private fun isCellPreset(row: Int, col: Int): Boolean {
+        return when (gridViewModel.getType(row, col)){
+            TYPE_EMPTY -> false
+            TYPE_NORMAL -> false
+            TYPE_START -> true
+            else -> false
+        }
+    }
+
+    // Checks to see the relation of the cell to the current selected cell
+    // Returns 1 if it is the same cell, 2 if it is adjacent or within the same square
+    // Or 3 if it is non-related
+    private fun isCellSelected(row: Int, col: Int): Int {
+        return if (row == selectedRow && col == selectedColumn) {
+            1
+        } else if (row == selectedRow || col == selectedColumn) {
+            2
+        } else if (row / sqrtSize == selectedRow / sqrtSize && col / sqrtSize == selectedColumn / sqrtSize){
+            2
+        } else {
+            3
+        }
+    }
+
+    //    function draws all pencil marks in. might need to check sizes
     private fun drawPencils(canvas: Canvas, i: Int, j: Int){
         for (k in 0..9){
             if (gridViewModel.getPencil(k, i, j)){
@@ -244,10 +291,5 @@ class SudokuBoardView @JvmOverloads constructor(
 
     fun jumbleGrid() {
         gridViewModel.jumbleGrid()
-    }
-
-    fun showHint() {
-        TODO("Not yet implemented")
-        gridViewModel.findHint()
     }
 }

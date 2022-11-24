@@ -23,8 +23,6 @@ class SudokuBoardFragment : Fragment() {
     private var timeBegin: Long = System.currentTimeMillis()
     private var gameWon: Boolean = false
     private var levelDifficultyValue = 0
-    private val sharedPref = getDefaultSharedPreferences(activity)
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,14 +58,15 @@ class SudokuBoardFragment : Fragment() {
 
     // Returns a difficulty value to determine the difficulty string
     private fun getDifficultyLevel(): Int {
-        val savedDifficulty = getDefaultSharedPreferences(activity)
-            .getInt("DIFFICULTY", 0)
+        val sharedPref = getDefaultSharedPreferences(activity)
+        val savedDifficulty = sharedPref.getInt("DIFFICULTY", 0)
+        levelDifficultyValue = arguments?.getInt("levelNumber")!!
         return if (savedDifficulty != 0) {
             savedDifficulty
         } else {
             // Non-null asserted call as the difficulty select menu AND the continue menu both
             // send an argument
-            arguments?.getInt("levelNumber")!!
+           levelDifficultyValue
         }
     }
 
@@ -125,6 +124,7 @@ class SudokuBoardFragment : Fragment() {
     }
 
     private fun loadSaveData() {
+        val sharedPref = getDefaultSharedPreferences(activity)
         val numbersString = sharedPref.getString("SAVED_NUMBERS", null)
         if (numbersString != null) {
             binding.sudokuBoardView.loadSaveData(numbersString)
@@ -132,6 +132,7 @@ class SudokuBoardFragment : Fragment() {
     }
 
     private fun setUpTimer() {
+        val sharedPref = getDefaultSharedPreferences(activity)
         val timerLong = sharedPref.getLong("TIMER_STOPPED", 0L)
         if (timerLong < 0) {
             binding.timer.base = timerLong + SystemClock.elapsedRealtime()
