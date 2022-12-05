@@ -10,7 +10,8 @@ class Paints(
     private val onPrimary: Int,
     private val secondary: Int,
     private val secondaryVariant: Int,
-    private val onSecondary: Int
+    private val onSecondary: Int,
+    private val onBackground: Int
 ){
     val numberPaint = Paint().apply {
         style = Paint.Style.FILL
@@ -99,11 +100,11 @@ class Paints(
 
     val selectedCellPaint = Paint().apply {
         style = Paint.Style.FILL_AND_STROKE
-        color = primaryVariant
+        color = primary
     }
 
     val conflictingCellPaint = Paint().apply {
         style = Paint.Style.FILL_AND_STROKE
-        color = primary
+        color = secondary
     }
 }

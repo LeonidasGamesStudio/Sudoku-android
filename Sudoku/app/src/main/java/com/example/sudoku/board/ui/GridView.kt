@@ -39,7 +39,8 @@ class SudokuBoardView @JvmOverloads constructor(
         MaterialColors.getColor(this, R.attr.colorOnPrimary),
         MaterialColors.getColor(this, R.attr.colorSecondary),
         MaterialColors.getColor(this, R.attr.colorSecondaryVariant),
-        MaterialColors.getColor(this, R.attr.colorOnSecondary)
+        MaterialColors.getColor(this, R.attr.colorOnSecondary),
+        MaterialColors.getColor(this, R.attr.colorOnBackground)
     )
 
     fun getSelectedRow(): Int {
@@ -230,13 +231,17 @@ class SudokuBoardView @JvmOverloads constructor(
     // Returns 1 if it is the same cell, 2 if it is adjacent or within the same square
     // Or 3 if it is non-related
     private fun isCellSelected(row: Int, col: Int): Int {
-        return if (row == selectedRow && col == selectedColumn) {
-            1
-        } else if (row == selectedRow || col == selectedColumn) {
-            2
-        } else if (row / sqrtSize == selectedRow / sqrtSize && col / sqrtSize == selectedColumn / sqrtSize){
-            2
-        } else {
+        return if (selectedRow != -1) {
+            if (row == selectedRow && col == selectedColumn) {
+                1
+            } else if (row == selectedRow || col == selectedColumn) {
+                2
+            } else if (row / sqrtSize == selectedRow / sqrtSize && col / sqrtSize == selectedColumn / sqrtSize) {
+                2
+            } else {
+                3
+            }
+        }else{
             3
         }
     }
