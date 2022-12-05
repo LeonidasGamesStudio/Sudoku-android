@@ -19,8 +19,6 @@ import com.google.android.material.color.MaterialColors
 import kotlin.math.abs
 
 
-class UndoStackEntry(val numberEntry: NumberEntry, val posX: Int, val posY: Int)
-
 class SudokuBoardView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -76,8 +74,6 @@ class SudokuBoardView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         requestLayout()
         cellSizePixels = (width / size).toFloat()
-
-
         fillCells(canvas)
         drawLines(canvas)
 
@@ -110,16 +106,29 @@ class SudokuBoardView @JvmOverloads constructor(
     //takes selected row and column and shades them. One colour for selected cell, another for
     //conflicting cells
     private fun fillCells(canvas: Canvas){
-        if (selectedRow == -1 || selectedColumn == -1) return
-        for (r in 0..size) {
-            for (c in 0..size){
-                if (r == selectedRow && c == selectedColumn) {
-                    fillCell(canvas, r, c, paints.selectedCellPaint)
-                } else if (r == selectedRow || c == selectedColumn) {
-                    fillCell(canvas, r, c, paints.conflictingCellPaint)
-                }else if (r / sqrtSize == selectedRow / sqrtSize && c / sqrtSize == selectedColumn / sqrtSize){
-                    fillCell(canvas, r, c, paints.conflictingCellPaint)
-                }
+        if (selectedRow == -1) return
+        for (r in 0 until size) {
+            for (c in 0 until size){
+                val paint = chooseCellPaint(r, c)
+                fillCell(canvas, r, c, paint)
+            }
+        }
+    }
+
+    private fun chooseCellPaint(row: Int, col: Int): Paint {
+        val selected = isCellSelected(row, col)
+        val preset = isCellPreset(row, col)
+        return if (!preset) {
+            when (selected) {
+                1 -> paints.selectedCellPaint
+                2 -> paints.conflictingCellPaint
+                else -> paints.white
+            }
+        } else {
+            when (selected) {
+                1 -> paints.presetSelectedCellPaint
+                2 -> paints.presetConflictingCellPaint
+                else -> paints.presetCellPaint
             }
         }
     }
@@ -223,6 +232,7 @@ class SudokuBoardView @JvmOverloads constructor(
             TYPE_EMPTY -> false
             TYPE_NORMAL -> false
             TYPE_START -> true
+            TYPE_START_CONFLICT -> true
             else -> false
         }
     }

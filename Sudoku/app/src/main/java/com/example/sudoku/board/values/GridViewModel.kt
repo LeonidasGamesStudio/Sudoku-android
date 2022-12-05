@@ -1,7 +1,7 @@
 package com.example.sudoku.board.values
 
 import androidx.lifecycle.ViewModel
-import com.example.sudoku.board.ui.UndoStackEntry
+import com.example.sudoku.board.values.GridModel.UndoStackEntry
 import com.example.sudoku.board.gridGeneration.GridJumbler
 import com.example.sudoku.board.gridGeneration.SudokuPresetsDifficulty
 import com.example.sudoku.board.numberEntry.NumberEntry
@@ -215,6 +215,7 @@ class GridValuesViewModel(private var size: Int) : ViewModel() {
         return if(move != null) {
             gridModel.sudokuNumbers[move.posX][move.posY].changeNum(move.numberEntry.getNum(), false)
             gridModel.sudokuNumbers[move.posX][move.posY].changeType(move.numberEntry.getType(), false)
+            checkBoardConflicts()
             true
         }else{
             false

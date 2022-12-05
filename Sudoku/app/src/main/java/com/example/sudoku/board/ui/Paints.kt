@@ -2,6 +2,10 @@ package com.example.sudoku.board.ui
 
 import android.graphics.Color
 import android.graphics.Paint
+import androidx.core.graphics.ColorUtils
+
+
+
 
 class Paints(
     private val numberTextSize: Float,
@@ -15,7 +19,7 @@ class Paints(
 ){
     val numberPaint = Paint().apply {
         style = Paint.Style.FILL
-        color = primary
+        color = primaryVariant
         strokeWidth = 2F
         textSize = numberTextSize
         textAlign = Paint.Align.CENTER
@@ -23,7 +27,7 @@ class Paints(
 
     val selectedNumberPaint = Paint().apply {
         style = Paint.Style.FILL
-        color = secondary
+        color = primaryVariant
         strokeWidth = 2F
         textSize = numberTextSize
         textAlign = Paint.Align.CENTER
@@ -31,7 +35,7 @@ class Paints(
 
     val adjacentNumberPaint = Paint().apply {
         style = Paint.Style.FILL
-        color = secondaryVariant
+        color = primaryVariant
         strokeWidth = 2F
         textSize = numberTextSize
         textAlign = Paint.Align.CENTER
@@ -56,7 +60,7 @@ class Paints(
 
     val selectedPresetPaint = Paint().apply {
         style = Paint.Style.FILL
-        color = onPrimary
+        color = onSecondary
         colorFilter
         strokeWidth = 16F
         textSize = numberTextSize
@@ -65,7 +69,7 @@ class Paints(
 
     val adjacentPresetPaint = Paint().apply {
         style = Paint.Style.FILL
-        color = onPrimary
+        color = onSecondary
         colorFilter
         strokeWidth = 16F
         textSize = numberTextSize
@@ -74,7 +78,7 @@ class Paints(
 
     val pencilPaint = Paint().apply {
         style = Paint.Style.FILL
-        color = Color.BLACK
+        color = onSecondary
         strokeWidth = 2F
         textSize = 32F
         textAlign = Paint.Align.CENTER
@@ -82,29 +86,49 @@ class Paints(
 
     val extraThickLinePaint = Paint().apply {
         style = Paint.Style.STROKE
-        color = Color.BLACK
+        color = onSecondary
         strokeWidth = 16F
     }
 
     val thickLinePaint = Paint().apply {
         style = Paint.Style.STROKE
-        color = Color.BLACK
+        color = onSecondary
         strokeWidth = 8F
     }
 
     val thinLinePaint = Paint().apply {
         style = Paint.Style.STROKE
-        color = Color.BLACK
+        color = onSecondary
         strokeWidth = 2F
     }
 
     val selectedCellPaint = Paint().apply {
         style = Paint.Style.FILL_AND_STROKE
-        color = primary
+        color = secondary
     }
 
     val conflictingCellPaint = Paint().apply {
         style = Paint.Style.FILL_AND_STROKE
-        color = secondary
+        color = secondaryVariant
+    }
+
+    val presetCellPaint = Paint().apply {
+        style = Paint.Style.FILL_AND_STROKE
+        color = Color.LTGRAY
+    }
+
+    val presetSelectedCellPaint = Paint().apply {
+        style = Paint.Style.FILL_AND_STROKE
+        color = ColorUtils.blendARGB(Color.LTGRAY, secondary, 0.5f)
+    }
+
+    val presetConflictingCellPaint = Paint().apply {
+        style = Paint.Style.FILL_AND_STROKE
+        color = ColorUtils.blendARGB(Color.LTGRAY, secondaryVariant, 0.5f)
+    }
+
+    val white = Paint().apply {
+        style = Paint.Style.FILL_AND_STROKE
+        color = Color.WHITE
     }
 }
