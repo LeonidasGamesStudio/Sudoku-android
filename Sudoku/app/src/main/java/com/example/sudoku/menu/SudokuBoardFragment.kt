@@ -8,10 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import com.example.sudoku.MainActivity
 import com.example.sudoku.R
+import com.example.sudoku.board.values.GridValuesViewModel
 import com.example.sudoku.databinding.FragmentGameViewBinding
 import com.google.android.gms.ads.AdRequest
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -23,6 +25,7 @@ class SudokuBoardFragment : Fragment() {
     private var timeBegin: Long = System.currentTimeMillis()
     private var gameWon: Boolean = false
     private var levelDifficultyValue = 0
+    private val viewModel: GridValuesViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,28 +101,39 @@ class SudokuBoardFragment : Fragment() {
         binding.pencilButton.setOnClickListener{
             binding.pencilButton.visibility = View.GONE
             binding.pencilButtonAlt.visibility = View.VISIBLE
-            binding.sudokuBoardView.changePencil()
+            viewModel.changePencil()
         }
         binding.pencilButtonAlt.setOnClickListener{
             binding.pencilButtonAlt.visibility = View.GONE
             binding.pencilButton.visibility = View.VISIBLE
-            binding.sudokuBoardView.changePencil()
+            viewModel.changePencil()
         }
     }
 
     //Sets up the other functional buttons (Undo, Hint, Eraser)
     private fun setUpOtherFuncButtons() {
-        binding.undoButton.setOnClickListener{ binding.sudokuBoardView.undoMove()}
+        binding.undoButton.setOnClickListener{ undoMove()}
         binding.eraserButton.setOnClickListener{ addNumber(0) }
     }
 
+    private fun undoMove() {
+        if (viewModel.undoMove()){
+            binding.sudokuBoardView.invalidate()
+        } else {
+            val text = "No moves left to undo!"
+            val duration = Toast.LENGTH_SHORT
+            val toast = Toast.makeText(context, text, duration)
+            toast.show()
+        }
+    }
     //Adds numbers to the board and jumbles them if there is no save data
     private fun setUpBoard() {
         if (levelDifficultyValue != 0) {
-            binding.sudokuBoardView.addPresets(levelDifficultyValue)
-            binding.sudokuBoardView.jumbleGrid()
+            viewModel.addPresets(levelDifficultyValue)
+            viewModel.jumbleGrid()
         } else {
             loadSaveData()
+            binding.sudokuBoardView.invalidate()
         }
     }
 
@@ -127,7 +141,7 @@ class SudokuBoardFragment : Fragment() {
         val sharedPref = getDefaultSharedPreferences(activity)
         val numbersString = sharedPref.getString("SAVED_NUMBERS", null)
         if (numbersString != null) {
-            binding.sudokuBoardView.loadSaveData(numbersString)
+            viewModel.loadSaveData(numbersString)
         }
     }
 
@@ -145,7 +159,7 @@ class SudokuBoardFragment : Fragment() {
     override fun onDestroyView() {
         if (!gameWon) {
             val sharedPref = getDefaultSharedPreferences(activity)
-            val numbersString = binding.sudokuBoardView.getSaveData()
+            val numbersString = viewModel.getSaveData()
             if (sharedPref != null) {
                 with(sharedPref.edit()) {
                     putString("SAVED_NUMBERS", numbersString)
@@ -163,11 +177,12 @@ class SudokuBoardFragment : Fragment() {
 
 
     private fun addNumber (number: Int) {
-        if (binding.sudokuBoardView.getSelectedRow() != -1) {
-            val previousNum = binding.sudokuBoardView.checkCurrentNum()
-            binding.sudokuBoardView.addNumberToMatrix(number)
+        if (viewModel.selectedRow != -1) {
+            val previousNum = viewModel.checkSelectedNum()
+            viewModel.addNumberToMatrix(number)
+            binding.sudokuBoardView.invalidate()
             checkForFilledNumbers(number, previousNum)
-            if (binding.sudokuBoardView.checkWinCondition()) {
+            if (viewModel.checkWinCondition()) {
                 binding.timer.stop()
                 val timeTaken = System.currentTimeMillis() - timeBegin
                 showWinDialog(timeTaken)
@@ -197,7 +212,7 @@ class SudokuBoardFragment : Fragment() {
 
     private fun checkForFilledNumbers(number: Int, previousNum: Int){
         if (number != 0) {
-            if (binding.sudokuBoardView.checkFilledNumbers(number)) {
+            if (viewModel.checkFilledNumbers(number)) {
                 //change string to strikethrough
                 when (number) {
                     1 -> binding.oneButton.isEnabled = false
@@ -226,7 +241,7 @@ class SudokuBoardFragment : Fragment() {
         }
 
         if (previousNum != 0) {
-            if (binding.sudokuBoardView.checkFilledNumbers(previousNum)) {
+            if (viewModel.checkFilledNumbers(previousNum)) {
                 //change string to strikethrough
                 when (previousNum) {
                     1 -> binding.oneButton.isEnabled = false

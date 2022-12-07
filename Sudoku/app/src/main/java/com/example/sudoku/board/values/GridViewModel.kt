@@ -12,8 +12,28 @@ const val TYPE_START = 2
 const val TYPE_NORMAL_CONFLICT = 3
 const val TYPE_START_CONFLICT = 4
 
-class GridValuesViewModel(private var size: Int) : ViewModel() {
+class GridValuesViewModel() : ViewModel() {
+    private val size = 9
     private val gridModel = GridModel(size)
+    private var _selectedRow = -1
+    val selectedRow: Int
+        get() = _selectedRow
+    private var _selectedCol = -1
+    val selectedCol: Int
+        get() = _selectedCol
+
+    fun setSelectedRow (row: Int) {
+        if (row > -1 && row < 9) {
+            _selectedRow = row
+        }
+    }
+
+    fun setSelectedCol (col: Int) {
+        if (col > -1 && col < 9) {
+            _selectedCol = col
+        }
+    }
+
     //gets presets from sudokuPresets and adds them to the sudoku board
     //public fun done on startup in sudoku board fragment
     fun addPresets(presetNum: Int) {
@@ -36,8 +56,8 @@ class GridValuesViewModel(private var size: Int) : ViewModel() {
         GridJumbler(gridModel.sudokuNumbers, size).jumble()
     }
 
-    fun checkCurrentNum(row: Int, col: Int): Int{
-        return gridModel.sudokuNumbers[row][col].getNum()
+    fun checkSelectedNum(): Int{
+        return gridModel.sudokuNumbers[_selectedRow][_selectedCol].getNum()
     }
 
     fun checkFilledNumbers(number: Int): Boolean {
@@ -81,38 +101,38 @@ class GridValuesViewModel(private var size: Int) : ViewModel() {
         }
     }
 
-    fun addNumberToMatrix(number: Int, row: Int, col: Int){
+    fun addNumberToMatrix(number: Int){
         if (!gridModel.pencil) {
             gridModel.undoStack.add(
                 UndoStackEntry(
                     NumberEntry(
-                        gridModel.sudokuNumbers[row][col].getNum(),
-                        gridModel.sudokuNumbers[row][col].getType()
-                    ), row, col
+                        gridModel.sudokuNumbers[_selectedRow][_selectedCol].getNum(),
+                        gridModel.sudokuNumbers[_selectedRow][_selectedCol].getType()
+                    ), _selectedRow, _selectedCol
                 )
             )
             if (number != 0) {          //0 is when the eraser button is selected
 
-                gridModel.sudokuNumbers[row][col].changeNum(
+                gridModel.sudokuNumbers[_selectedRow][_selectedCol].changeNum(
                     number,
                     false
                 )    //change num to button pressed
-                gridModel.sudokuNumbers[row][col].changeType(
+                gridModel.sudokuNumbers[_selectedRow][_selectedCol].changeType(
                     TYPE_NORMAL,
                     false
                 ) //change type to 1
             } else {  //if eraser is clicked, change num to 0 and change type to 0 = empty
-                gridModel.sudokuNumbers[row][col].changeNum(number, false)
-                gridModel.sudokuNumbers[row][col].changeType(TYPE_EMPTY, false)
+                gridModel.sudokuNumbers[_selectedRow][_selectedCol].changeNum(number, false)
+                gridModel.sudokuNumbers[_selectedRow][_selectedCol].changeType(TYPE_EMPTY, false)
             }
             checkBoardConflicts()   //checks board for all conflicts. could speed up by only checking
             //affected squares, but seems fast enough for now
             //TODO Near production, see if this is fast enough particularly on older phones
         } else if (number != 0) {
-            gridModel.sudokuNumbers[row][col].setPencil(number) //set a pencilled number
+            gridModel.sudokuNumbers[_selectedRow][_selectedCol].setPencil(number) //set a pencilled number
         } else {
             //clear pencil numbers
-            gridModel.sudokuNumbers[row][col].clearPencilNumbers()
+            gridModel.sudokuNumbers[_selectedRow][_selectedCol].clearPencilNumbers()
         }
     }
 

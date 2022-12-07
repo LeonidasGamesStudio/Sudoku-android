@@ -11,9 +11,10 @@ import android.view.View.MeasureSpec.AT_MOST
 import android.view.ViewGroup
 import android.widget.Chronometer
 import android.widget.TableRow
-import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewTreeViewModelStoreOwner
+import androidx.lifecycle.get
 import com.example.sudoku.R
-import com.example.sudoku.board.numberEntry.NumberEntry
 import com.example.sudoku.board.values.*
 import com.google.android.material.color.MaterialColors
 import kotlin.math.abs
@@ -27,9 +28,11 @@ class SudokuBoardView @JvmOverloads constructor(
     private val sqrtSize = 3
     private val size = 9
     private var cellSizePixels = 0F
-    private var selectedRow = -1
-    private var selectedColumn = -1
     private var numberTextSize = 64F
+    private val viewModel by lazy {
+        ViewModelProvider(ViewTreeViewModelStoreOwner.get(this)!!).get<GridValuesViewModel>()
+    }
+
 
     private val paints = Paints(numberTextSize,
         MaterialColors.getColor(this, R.attr.colorPrimary),
@@ -40,14 +43,6 @@ class SudokuBoardView @JvmOverloads constructor(
         MaterialColors.getColor(this, R.attr.colorOnSecondary),
         MaterialColors.getColor(this, R.attr.colorOnBackground)
     )
-
-    fun getSelectedRow(): Int {
-        return selectedRow
-    }
-
-
-
-    private var gridViewModel = GridValuesViewModel(size)
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
@@ -76,38 +71,16 @@ class SudokuBoardView @JvmOverloads constructor(
         cellSizePixels = (width / size).toFloat()
         fillCells(canvas)
         drawLines(canvas)
-
         drawNumbers(canvas)
-
-    }
-
-    fun addPresets(presetNum: Int){
-        gridViewModel.addPresets(presetNum)
-    }
-
-    fun checkCurrentNum(): Int {
-        return gridViewModel.checkCurrentNum(selectedRow, selectedColumn)
     }
 
     //checks to see if all of one number has been filled or if the final one has been cleared
-    fun checkFilledNumbers (number: Int): Boolean {
-        return gridViewModel.checkFilledNumbers(number)
-    }
-
-    fun getSaveData(): String {
-        return gridViewModel.getSaveData()
-    }
-
-    fun loadSaveData(data: String){
-        gridViewModel.loadSaveData(data)
-        invalidate()
-    }
 
     //takes selected row and column and shades them. One colour for selected cell, another for
     //conflicting cells
     private fun fillCells(canvas: Canvas){
-        if (selectedRow == -1) return
-        for (r in 0 until size) {
+        if (viewModel.selectedRow == -1) return     //if a row has not been selected then no
+        for (r in 0 until size) {               //cells need to be filled
             for (c in 0 until size){
                 val paint = chooseCellPaint(r, c)
                 fillCell(canvas, r, c, paint)
@@ -166,26 +139,12 @@ class SudokuBoardView @JvmOverloads constructor(
         }
     }
 
-    //adds a number to either the sudoku number matrix or the pencil number matrix when the button is pressed
-    fun addNumberToMatrix(number: Int){
-        gridViewModel.addNumberToMatrix(number, selectedRow, selectedColumn)
-        invalidate()
-    }
-
-    //checks wincon by checking the type of all squares. If type is 1 (inputted with no clash) or 2,
-    //then it satisfies win con. If any squares are another number, returns false (no win)
-    fun checkWinCondition(): Boolean {
-        return gridViewModel.checkWinCondition()
-    }
-
-
-
     //draws all numbers on the board, including pencils
     private fun drawNumbers (canvas: Canvas){
         val yOffset = ((paints.numberPaint.ascent() + paints.numberPaint.descent()) / 2)
         for (i in 0 until size){
             for (j in 0 until size) {
-                val number = gridViewModel.getNum(i, j)
+                val number = viewModel.getNum(i, j)
                 if (number != 0) {
                     val paint = chooseColor(i, j)
                     canvas.drawText(
@@ -194,6 +153,8 @@ class SudokuBoardView @JvmOverloads constructor(
                         i * cellSizePixels + (cellSizePixels / 2) - yOffset,
                         paint
                     )
+                } else {
+                    drawPencils(canvas, i, j)
                 }
             }
         }
@@ -223,12 +184,12 @@ class SudokuBoardView @JvmOverloads constructor(
     }
 
     private fun isCellConflicted(row: Int, col: Int): Boolean {
-        return gridViewModel.getType(row, col) == TYPE_START_CONFLICT ||
-                gridViewModel.getType(row, col) == TYPE_NORMAL_CONFLICT
+        return viewModel.getType(row, col) == TYPE_START_CONFLICT ||
+                viewModel.getType(row, col) == TYPE_NORMAL_CONFLICT
     }
 
     private fun isCellPreset(row: Int, col: Int): Boolean {
-        return when (gridViewModel.getType(row, col)){
+        return when (viewModel.getType(row, col)){
             TYPE_EMPTY -> false
             TYPE_NORMAL -> false
             TYPE_START -> true
@@ -241,12 +202,12 @@ class SudokuBoardView @JvmOverloads constructor(
     // Returns 1 if it is the same cell, 2 if it is adjacent or within the same square
     // Or 3 if it is non-related
     private fun isCellSelected(row: Int, col: Int): Int {
-        return if (selectedRow != -1) {
-            if (row == selectedRow && col == selectedColumn) {
+        return if (viewModel.selectedRow != -1) {
+            if (row == viewModel.selectedRow && col == viewModel.selectedCol) {
                 1
-            } else if (row == selectedRow || col == selectedColumn) {
+            } else if (row == viewModel.selectedRow || col == viewModel.selectedCol) {
                 2
-            } else if (row / sqrtSize == selectedRow / sqrtSize && col / sqrtSize == selectedColumn / sqrtSize) {
+            } else if (row / sqrtSize == viewModel.selectedRow / sqrtSize && col / sqrtSize == viewModel.selectedCol / sqrtSize) {
                 2
             } else {
                 3
@@ -259,24 +220,13 @@ class SudokuBoardView @JvmOverloads constructor(
     //    function draws all pencil marks in. might need to check sizes
     private fun drawPencils(canvas: Canvas, i: Int, j: Int){
         for (k in 0..9){
-            if (gridViewModel.getPencil(k, i, j)){
+            if (viewModel.getPencil(k, i, j)){
                 val yOffset = (paints.pencilPaint.ascent() + paints.pencilPaint.descent()) / 2
                 canvas.drawText(k.toString(),
                     (j * cellSizePixels + (((k - 1) % 3) + 0.5) * (cellSizePixels / 3)).toFloat(),
                     (i * cellSizePixels + (((k - 1) / 3) + 0.5) * (cellSizePixels / 3) - yOffset).toFloat(), paints.pencilPaint)
             //draw pencil
             }
-        }
-    }
-
-    fun undoMove(){
-        if(gridViewModel.undoMove()) {
-            invalidate()
-        }else{
-            val text = "No moves left to undo!"
-            val duration = Toast.LENGTH_SHORT
-            val toast = Toast.makeText(context, text, duration)
-            toast.show()
         }
     }
 
@@ -295,16 +245,8 @@ class SudokuBoardView @JvmOverloads constructor(
 
     //sets coordinates of selected row and column
     private fun handleTouchEvent(x: Float, y: Float) {
-        selectedRow = (y / cellSizePixels).toInt()
-        selectedColumn = (x / cellSizePixels).toInt()
+        viewModel.setSelectedRow((y / cellSizePixels).toInt())
+        viewModel.setSelectedCol((x / cellSizePixels).toInt())
         invalidate()
-    }
-
-    fun changePencil(){
-        gridViewModel.changePencil()
-    }
-
-    fun jumbleGrid() {
-        gridViewModel.jumbleGrid()
     }
 }
