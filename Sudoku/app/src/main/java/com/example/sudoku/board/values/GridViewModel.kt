@@ -1,5 +1,7 @@
 package com.example.sudoku.board.values
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.sudoku.board.values.GridModel.UndoStackEntry
 import com.example.sudoku.board.gridGeneration.GridJumbler
@@ -15,6 +17,13 @@ const val TYPE_START_CONFLICT = 4
 class GridValuesViewModel() : ViewModel() {
     private val size = 9
     private val gridModel = GridModel(size)
+    private var _turns = MutableLiveData(0)
+    val turns: LiveData<Int> get() = _turns
+
+    fun addTurns(){
+        _turns.value = _turns.value?.plus(1)
+    }
+
     private var _selectedRow = -1
     val selectedRow: Int
         get() = _selectedRow
@@ -101,48 +110,67 @@ class GridValuesViewModel() : ViewModel() {
         }
     }
 
-    fun numberInput(number: Int): Boolean {
+    fun numberInput(number: Int): Int {
         return if (_selectedRow == -1 || _selectedCol == -1) {
-            false
+            -1              //error as row or col isn't selected
         } else {
-            addNumberToMatrix(number)
-            true
+            val result = addNumberOrPencil(number)
+            if (result == 1){
+                checkBoardConflicts()
+            }
+            result
         }
     }
 
-    fun addNumberToMatrix(number: Int){
-        if (!gridModel.pencil) {
-            gridModel.undoStack.add(
-                UndoStackEntry(
-                    NumberEntry(
-                        gridModel.sudokuNumbers[_selectedRow][_selectedCol].getNum(),
-                        gridModel.sudokuNumbers[_selectedRow][_selectedCol].getType()
-                    ), _selectedRow, _selectedCol
-                )
-            )
-            if (number != 0) {          //0 is when the eraser button is selected
+    private fun addNumberOrPencil(number: Int): Int {
+        return if (!gridModel.pencil){
+            addMoveToUndoStack()
+            addNumber(number)
+            1
+        }else{
+            addPencil(number)
+            2
+        }
+    }
 
-                gridModel.sudokuNumbers[_selectedRow][_selectedCol].changeNum(
-                    number,
-                    false
-                )    //change num to button pressed
-                gridModel.sudokuNumbers[_selectedRow][_selectedCol].changeType(
-                    TYPE_NORMAL,
-                    false
-                ) //change type to 1
-            } else {  //if eraser is clicked, change num to 0 and change type to 0 = empty
-                gridModel.sudokuNumbers[_selectedRow][_selectedCol].changeNum(number, false)
-                gridModel.sudokuNumbers[_selectedRow][_selectedCol].changeType(TYPE_EMPTY, false)
-            }
-            checkBoardConflicts()   //checks board for all conflicts. could speed up by only checking
-            //affected squares, but seems fast enough for now
-            //TODO Near production, see if this is fast enough particularly on older phones
-        } else if (number != 0) {
-            gridModel.sudokuNumbers[_selectedRow][_selectedCol].setPencil(number) //set a pencilled number
-        } else {
-            //clear pencil numbers
+    private fun addPencil(number: Int) {
+        gridModel.sudokuNumbers[_selectedRow][_selectedCol].setPencil(number) //set a pencilled number
+    }
+
+    private fun addNumber(number: Int) {
+        gridModel.sudokuNumbers[_selectedRow][_selectedCol].changeNum(
+            number,
+            false
+        )    //change num to button pressed
+        gridModel.sudokuNumbers[_selectedRow][_selectedCol].changeType(
+            TYPE_NORMAL,
+            false
+        ) //change type to 1
+    }
+
+    fun eraseCell(){
+        val type = gridModel.sudokuNumbers[_selectedRow][_selectedCol].getType()
+        if (type == 1 || type == 3) {
+            addMoveToUndoStack()
+            gridModel.sudokuNumbers[_selectedRow][_selectedCol].changeNum(0, true)
+            gridModel.sudokuNumbers[_selectedRow][_selectedCol].changeType(TYPE_EMPTY, true)
+            checkBoardConflicts()
+        }else if (type == 0) {
             gridModel.sudokuNumbers[_selectedRow][_selectedCol].clearPencilNumbers()
         }
+    }
+
+
+
+    private fun addMoveToUndoStack() {
+        gridModel.undoStack.add(
+            UndoStackEntry(
+                NumberEntry(
+                    gridModel.sudokuNumbers[_selectedRow][_selectedCol].getNum(),
+                    gridModel.sudokuNumbers[_selectedRow][_selectedCol].getType()
+                ), _selectedRow, _selectedCol
+            )
+        )
     }
 
     fun checkWinCondition(): Boolean {

@@ -28,7 +28,6 @@ class SudokuBoardFragment : Fragment() {
     private var gameWon: Boolean = false
     private var levelDifficultyValue = 0
     private val viewModel: GridValuesViewModel by viewModels()
-    private val statsViewModel: StatsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,7 +77,7 @@ class SudokuBoardFragment : Fragment() {
 
     // Runs set up for the game
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        _binding?.statsViewModel = statsViewModel
+        _binding?.viewModel = viewModel
         _binding?.lifecycleOwner = viewLifecycleOwner
         setUpNumberButtons()
         setUpPencilButtons()
@@ -118,7 +117,7 @@ class SudokuBoardFragment : Fragment() {
     //Sets up the other functional buttons (Undo, Hint, Eraser)
     private fun setUpOtherFuncButtons() {
         binding.undoButton.setOnClickListener{ undoMove()}
-        binding.eraserButton.setOnClickListener{ numberInput(0) }
+        binding.eraserButton.setOnClickListener{ binding.viewModel?.eraseCell() }
     }
 
     private fun undoMove() {
@@ -183,25 +182,32 @@ class SudokuBoardFragment : Fragment() {
 
     private fun numberInput (number: Int) {
         val previousNum = viewModel.checkSelectedNum()
-        if (viewModel.numberInput(number)) {
-            statsViewModel.addTurns()
-            viewModel.addNumberToMatrix(number)
-            binding.sudokuBoardView.invalidate()
-            checkForFilledNumbers(number, previousNum)
-            if (viewModel.checkWinCondition()) {
-                binding.timer.stop()
-                val timeTaken = System.currentTimeMillis() - timeBegin
-                showWinDialog(timeTaken)
-                return
+        when (viewModel.numberInput(number)) {
+            -1 -> {                                  //if no row or column is selected
+                val text = "Please select a cell first!"
+                val duration = Toast.LENGTH_SHORT
+                val toast = Toast.makeText(context, text, duration)
+                toast.show()
             }
-        }else{
-            val text = "Please select a cell first!"
-            val duration = Toast.LENGTH_SHORT
-            val toast = Toast.makeText(context, text, duration)
-            toast.show()
+            0 -> {                                  //if eraser selected
+                binding.sudokuBoardView.invalidate()
+            }
+            1 -> {
+                viewModel.addTurns()
+                binding.sudokuBoardView.invalidate()
+                checkForFilledNumbers(number, previousNum)
+                if (viewModel.checkWinCondition()) {
+                    binding.timer.stop()
+                    val timeTaken = System.currentTimeMillis() - timeBegin
+                    showWinDialog(timeTaken)
+                }
+            }
+            else -> {
+
+            }
+
         }
     }
-
     private fun showWinDialog(timeTaken: Long){
         gameWon = true
         val timeInSecs = timeTaken/1000
