@@ -79,8 +79,7 @@ class SudokuBoardView @JvmOverloads constructor(
     //takes selected row and column and shades them. One colour for selected cell, another for
     //conflicting cells
     private fun fillCells(canvas: Canvas){
-        if (viewModel.selectedRow == -1) return     //if a row has not been selected then no
-        for (r in 0 until size) {               //cells need to be filled
+        for (r in 0 until size) {
             for (c in 0 until size){
                 val paint = chooseCellPaint(r, c)
                 fillCell(canvas, r, c, paint)
@@ -245,8 +244,8 @@ class SudokuBoardView @JvmOverloads constructor(
 
     //sets coordinates of selected row and column
     private fun handleTouchEvent(x: Float, y: Float) {
-        viewModel.setSelectedRow((y / cellSizePixels).toInt())
-        viewModel.setSelectedCol((x / cellSizePixels).toInt())
+        viewModel.selectedRow = ((y / cellSizePixels).toInt())
+        viewModel.selectedCol = ((x / cellSizePixels).toInt())
         invalidate()
     }
 }

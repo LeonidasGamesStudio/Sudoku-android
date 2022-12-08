@@ -31,6 +31,7 @@ class Paints(
         strokeWidth = 2F
         textSize = numberTextSize
         textAlign = Paint.Align.CENTER
+
     }
 
     val adjacentNumberPaint = Paint().apply {

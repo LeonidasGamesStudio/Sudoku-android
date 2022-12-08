@@ -14,34 +14,21 @@ const val TYPE_START = 2
 const val TYPE_NORMAL_CONFLICT = 3
 const val TYPE_START_CONFLICT = 4
 
-class GridValuesViewModel() : ViewModel() {
+class GridValuesViewModel : ViewModel() {
     private val size = 9
     private val gridModel = GridModel(size)
+
     private var _turns = MutableLiveData(0)
     val turns: LiveData<Int> get() = _turns
 
-    fun addTurns(){
+    private fun addTurns(){
         _turns.value = _turns.value?.plus(1)
     }
-
-    private var _selectedRow = -1
-    val selectedRow: Int
-        get() = _selectedRow
-    private var _selectedCol = -1
-    val selectedCol: Int
-        get() = _selectedCol
-
-    fun setSelectedRow (row: Int) {
-        if (row > -1 && row < 9) {
-            _selectedRow = row
-        }
-    }
-
-    fun setSelectedCol (col: Int) {
-        if (col > -1 && col < 9) {
-            _selectedCol = col
-        }
-    }
+    
+    var selectedRow: Int = -1
+        set(value) { if (value > -1 && value < 9) {field = value}}
+    var selectedCol: Int = -1
+        set(value) { if (value > -1 && value < 9) {field = value}}
 
     //gets presets from sudokuPresets and adds them to the sudoku board
     //public fun done on startup in sudoku board fragment
@@ -66,7 +53,11 @@ class GridValuesViewModel() : ViewModel() {
     }
 
     fun checkSelectedNum(): Int{
-        return gridModel.sudokuNumbers[_selectedRow][_selectedCol].getNum()
+        return if (selectedRow != -1 && selectedCol != -1) {
+            gridModel.sudokuNumbers[selectedRow][selectedCol].getNum()
+        } else {
+            -1
+        }
     }
 
     fun checkFilledNumbers(number: Int): Boolean {
@@ -111,7 +102,7 @@ class GridValuesViewModel() : ViewModel() {
     }
 
     fun numberInput(number: Int): Int {
-        return if (_selectedRow == -1 || _selectedCol == -1) {
+        return if (selectedRow == -1 || selectedCol == -1) {
             -1              //error as row or col isn't selected
         } else {
             val result = addNumberOrPencil(number)
@@ -134,29 +125,31 @@ class GridValuesViewModel() : ViewModel() {
     }
 
     private fun addPencil(number: Int) {
-        gridModel.sudokuNumbers[_selectedRow][_selectedCol].setPencil(number) //set a pencilled number
+        gridModel.sudokuNumbers[selectedRow][selectedCol].setPencil(number) //set a pencilled number
     }
 
     private fun addNumber(number: Int) {
-        gridModel.sudokuNumbers[_selectedRow][_selectedCol].changeNum(
+        addTurns()
+        gridModel.sudokuNumbers[selectedRow][selectedCol].changeNum(
             number,
             false
         )    //change num to button pressed
-        gridModel.sudokuNumbers[_selectedRow][_selectedCol].changeType(
+        gridModel.sudokuNumbers[selectedRow][selectedCol].changeType(
             TYPE_NORMAL,
             false
         ) //change type to 1
     }
 
     fun eraseCell(){
-        val type = gridModel.sudokuNumbers[_selectedRow][_selectedCol].getType()
+        if (selectedRow == -1 || selectedCol == -1) return
+        val type = gridModel.sudokuNumbers[selectedRow][selectedCol].getType()
         if (type == 1 || type == 3) {
             addMoveToUndoStack()
-            gridModel.sudokuNumbers[_selectedRow][_selectedCol].changeNum(0, true)
-            gridModel.sudokuNumbers[_selectedRow][_selectedCol].changeType(TYPE_EMPTY, true)
+            gridModel.sudokuNumbers[selectedRow][selectedCol].changeNum(0, true)
+            gridModel.sudokuNumbers[selectedRow][selectedCol].changeType(TYPE_EMPTY, true)
             checkBoardConflicts()
         }else if (type == 0) {
-            gridModel.sudokuNumbers[_selectedRow][_selectedCol].clearPencilNumbers()
+            gridModel.sudokuNumbers[selectedRow][selectedCol].clearPencilNumbers()
         }
     }
 
@@ -166,9 +159,9 @@ class GridValuesViewModel() : ViewModel() {
         gridModel.undoStack.add(
             UndoStackEntry(
                 NumberEntry(
-                    gridModel.sudokuNumbers[_selectedRow][_selectedCol].getNum(),
-                    gridModel.sudokuNumbers[_selectedRow][_selectedCol].getType()
-                ), _selectedRow, _selectedCol
+                    gridModel.sudokuNumbers[selectedRow][selectedCol].getNum(),
+                    gridModel.sudokuNumbers[selectedRow][selectedCol].getType()
+                ), selectedRow, selectedCol
             )
         )
     }

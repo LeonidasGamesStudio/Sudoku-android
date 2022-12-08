@@ -15,7 +15,6 @@ import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import com.example.sudoku.MainActivity
 import com.example.sudoku.R
 import com.example.sudoku.board.values.GridValuesViewModel
-import com.example.sudoku.board.values.StatsViewModel
 import com.example.sudoku.databinding.FragmentGameViewBinding
 import com.google.android.gms.ads.AdRequest
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -77,14 +76,18 @@ class SudokuBoardFragment : Fragment() {
 
     // Runs set up for the game
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        _binding?.viewModel = viewModel
-        _binding?.lifecycleOwner = viewLifecycleOwner
+        setUpViewModel()
         setUpNumberButtons()
         setUpPencilButtons()
         setUpOtherFuncButtons()
         setUpBoard()
         setUpTimer()
-        binding.adView.loadAd(AdRequest.Builder().build())
+        setUpAds()
+    }
+
+    private fun setUpViewModel() {
+        _binding?.viewModel = viewModel
+        _binding?.lifecycleOwner = viewLifecycleOwner
     }
 
     // Sets click listeners to the number buttons
@@ -98,6 +101,32 @@ class SudokuBoardFragment : Fragment() {
         binding.sevenButton.setOnClickListener{ numberInput(7) }
         binding.eightButton.setOnClickListener{ numberInput(8) }
         binding.nineButton.setOnClickListener{ numberInput(9) }
+    }
+
+    private fun numberInput (number: Int) {
+        val previousNum = viewModel.checkSelectedNum()
+        when (viewModel.numberInput(number)) {
+            -1 -> {                                  //if no row or column is selected
+                val text = "Please select a cell first!"
+                val duration = Toast.LENGTH_SHORT
+                val toast = Toast.makeText(context, text, duration)
+                toast.show()
+            }
+            1 -> {
+                binding.sudokuBoardView.invalidate()
+                checkForFilledNumbers(number)
+                checkForFilledNumbers(previousNum)
+                if (viewModel.checkWinCondition()) {
+                    binding.timer.stop()
+                    val timeTaken = System.currentTimeMillis() - timeBegin
+                    showWinDialog(timeTaken)
+                }
+            }
+            else -> {
+                //if pencil is selected, do nothing
+            }
+
+        }
     }
 
     // Sets up pencil button and alternate pencil button
@@ -121,7 +150,9 @@ class SudokuBoardFragment : Fragment() {
     }
 
     private fun undoMove() {
+        val previousNum = viewModel.checkSelectedNum()
         if (viewModel.undoMove()){
+            checkForFilledNumbers(previousNum)
             binding.sudokuBoardView.invalidate()
         } else {
             val text = "No moves left to undo!"
@@ -139,6 +170,10 @@ class SudokuBoardFragment : Fragment() {
             loadSaveData()
             binding.sudokuBoardView.invalidate()
         }
+    }
+
+    private fun setUpAds() {
+        binding.adView.loadAd(AdRequest.Builder().build())
     }
 
     private fun loadSaveData() {
@@ -179,35 +214,6 @@ class SudokuBoardFragment : Fragment() {
         _binding = null
     }
 
-
-    private fun numberInput (number: Int) {
-        val previousNum = viewModel.checkSelectedNum()
-        when (viewModel.numberInput(number)) {
-            -1 -> {                                  //if no row or column is selected
-                val text = "Please select a cell first!"
-                val duration = Toast.LENGTH_SHORT
-                val toast = Toast.makeText(context, text, duration)
-                toast.show()
-            }
-            0 -> {                                  //if eraser selected
-                binding.sudokuBoardView.invalidate()
-            }
-            1 -> {
-                viewModel.addTurns()
-                binding.sudokuBoardView.invalidate()
-                checkForFilledNumbers(number, previousNum)
-                if (viewModel.checkWinCondition()) {
-                    binding.timer.stop()
-                    val timeTaken = System.currentTimeMillis() - timeBegin
-                    showWinDialog(timeTaken)
-                }
-            }
-            else -> {
-
-            }
-
-        }
-    }
     private fun showWinDialog(timeTaken: Long){
         gameWon = true
         val timeInSecs = timeTaken/1000
@@ -222,7 +228,7 @@ class SudokuBoardFragment : Fragment() {
             }.show()
     }
 
-    private fun checkForFilledNumbers(number: Int, previousNum: Int){
+    private fun checkForFilledNumbers(number: Int){
         if (number != 0) {
             if (viewModel.checkFilledNumbers(number)) {
                 //change string to strikethrough
@@ -239,35 +245,6 @@ class SudokuBoardFragment : Fragment() {
                 }
             } else {
                 when (number) {
-                    1 -> binding.oneButton.isEnabled = true
-                    2 -> binding.twoButton.isEnabled = true
-                    3 -> binding.threeButton.isEnabled = true
-                    4 -> binding.fourButton.isEnabled = true
-                    5 -> binding.fiveButton.isEnabled = true
-                    6 -> binding.sixButton.isEnabled = true
-                    7 -> binding.sevenButton.isEnabled = true
-                    8 -> binding.eightButton.isEnabled = true
-                    else -> binding.nineButton.isEnabled = true
-                }
-            }
-        }
-
-        if (previousNum != 0) {
-            if (viewModel.checkFilledNumbers(previousNum)) {
-                //change string to strikethrough
-                when (previousNum) {
-                    1 -> binding.oneButton.isEnabled = false
-                    2 -> binding.twoButton.isEnabled = false
-                    3 -> binding.threeButton.isEnabled = false
-                    4 -> binding.fourButton.isEnabled = false
-                    5 -> binding.fiveButton.isEnabled = false
-                    6 -> binding.sixButton.isEnabled = false
-                    7 -> binding.sevenButton.isEnabled = false
-                    8 -> binding.eightButton.isEnabled = false
-                    else -> binding.nineButton.isEnabled = false
-                }
-            } else {
-                when (previousNum) {
                     1 -> binding.oneButton.isEnabled = true
                     2 -> binding.twoButton.isEnabled = true
                     3 -> binding.threeButton.isEnabled = true
