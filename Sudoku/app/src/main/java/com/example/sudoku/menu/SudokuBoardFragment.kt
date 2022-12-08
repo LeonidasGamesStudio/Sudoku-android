@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
@@ -41,7 +42,7 @@ class SudokuBoardFragment : Fragment() {
         // Sets the title of the fragment. Done dynamically as difficulty is an argument from
         // DifficultySelect but is stored in SharedPref if continuing a game
         setDifficultyTitle()
-        _binding = FragmentGameViewBinding.inflate(inflater, container, false)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_game_view, container, false)
         return binding.root
     }
 
@@ -77,26 +78,27 @@ class SudokuBoardFragment : Fragment() {
 
     // Runs set up for the game
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        _binding?.statsViewModel = statsViewModel
+        _binding?.lifecycleOwner = viewLifecycleOwner
         setUpNumberButtons()
         setUpPencilButtons()
         setUpOtherFuncButtons()
         setUpBoard()
         setUpTimer()
         binding.adView.loadAd(AdRequest.Builder().build())
-        binding.statsViewModel = statsViewModel
     }
 
     // Sets click listeners to the number buttons
     private fun setUpNumberButtons() {
-        binding.oneButton.setOnClickListener{ addNumber(1) }
-        binding.twoButton.setOnClickListener{ addNumber(2) }
-        binding.threeButton.setOnClickListener{ addNumber(3) }
-        binding.fourButton.setOnClickListener{ addNumber(4) }
-        binding.fiveButton.setOnClickListener{ addNumber(5) }
-        binding.sixButton.setOnClickListener{ addNumber(6) }
-        binding.sevenButton.setOnClickListener{ addNumber(7) }
-        binding.eightButton.setOnClickListener{ addNumber(8) }
-        binding.nineButton.setOnClickListener{ addNumber(9) }
+        binding.oneButton.setOnClickListener{ numberInput(1) }
+        binding.twoButton.setOnClickListener{ numberInput(2) }
+        binding.threeButton.setOnClickListener{ numberInput(3) }
+        binding.fourButton.setOnClickListener{ numberInput(4) }
+        binding.fiveButton.setOnClickListener{ numberInput(5) }
+        binding.sixButton.setOnClickListener{ numberInput(6) }
+        binding.sevenButton.setOnClickListener{ numberInput(7) }
+        binding.eightButton.setOnClickListener{ numberInput(8) }
+        binding.nineButton.setOnClickListener{ numberInput(9) }
     }
 
     // Sets up pencil button and alternate pencil button
@@ -116,7 +118,7 @@ class SudokuBoardFragment : Fragment() {
     //Sets up the other functional buttons (Undo, Hint, Eraser)
     private fun setUpOtherFuncButtons() {
         binding.undoButton.setOnClickListener{ undoMove()}
-        binding.eraserButton.setOnClickListener{ addNumber(0) }
+        binding.eraserButton.setOnClickListener{ numberInput(0) }
     }
 
     private fun undoMove() {
@@ -179,9 +181,10 @@ class SudokuBoardFragment : Fragment() {
     }
 
 
-    private fun addNumber (number: Int) {
-        if (viewModel.selectedRow != -1) {
-            val previousNum = viewModel.checkSelectedNum()
+    private fun numberInput (number: Int) {
+        val previousNum = viewModel.checkSelectedNum()
+        if (viewModel.numberInput(number)) {
+            statsViewModel.addTurns()
             viewModel.addNumberToMatrix(number)
             binding.sudokuBoardView.invalidate()
             checkForFilledNumbers(number, previousNum)

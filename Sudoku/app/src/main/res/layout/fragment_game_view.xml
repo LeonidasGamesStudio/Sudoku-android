@@ -1,152 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="statsViewModel"
+            type="com.example.sudoku.board.values.StatsViewModel" />
+    </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/funcButtons"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-<!--    The timer above the board-->
-    <Chronometer
-        android:id="@+id/timer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="24sp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello"
-        android:textSize="24sp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/funcButtons"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+            <!--    The timer above the board-->
+            <Chronometer
+                android:id="@+id/timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24sp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:paddingStart="10dp"/>
 
-    <!--    the sudoku board-->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{@string/turns(statsViewModel.turns)}"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                android:paddingEnd="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
-    <com.example.sudoku.board.ui.SudokuBoardView
-        android:id="@+id/sudokuBoardView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/timer"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:orientation="horizontal" />
+            <!--    the sudoku board-->
+
+            <com.example.sudoku.board.ui.SudokuBoardView
+                android:id="@+id/sudokuBoardView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/timer"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:orientation="horizontal" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!--    functional buttons i.e. undo, eraser, hint, pencil-->
+        <TableRow
+            android:id="@+id/funcButtons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="4"
+            app:layout_constraintBottom_toTopOf="@id/numberButtons"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <Button
+                android:id="@+id/eraserButton"
+                android:text="@string/eraser"
+                style="@style/funcButtons" />
+
+            <Button
+                android:id="@+id/pencilButton"
+                android:text="@string/pencil"
+                style="@style/funcButtons" />
+
+            <Button
+                android:id="@+id/pencilButtonAlt"
+                android:text="@string/pencil"
+                style="@style/altPencil"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/undoButton"
+                android:text="@string/undo"
+                style="@style/funcButtons" />
+        </TableRow>
+
+        <!-- numbered buttons  -->
+        <TableRow
+            android:id="@+id/numberButtons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="9"
+            app:layout_constraintBottom_toTopOf="@id/adView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginBottom="20dp">
+            <!--constrain buttons to adview once it is implemented-->
+            <Button
+                android:id="@+id/oneButton"
+                android:text="@string/_1"
+                style="@style/numberButtons" />
+
+            <Button
+                android:id="@+id/twoButton"
+                android:text="@string/_2"
+                style="@style/numberButtons" />
+
+            <Button
+                android:id="@+id/threeButton"
+                android:text="@string/_3"
+                style="@style/numberButtons" />
+
+            <Button
+                android:id="@+id/fourButton"
+                android:text="@string/_4"
+                style="@style/numberButtons" />
+
+            <Button
+                android:id="@+id/fiveButton"
+                android:text="@string/_5"
+                style="@style/numberButtons" />
+
+            <Button
+                android:id="@+id/sixButton"
+                android:text="@string/_6"
+                style="@style/numberButtons" />
+
+            <Button
+                android:id="@+id/sevenButton"
+                android:text="@string/_7"
+                style="@style/numberButtons" />
+
+            <Button
+                android:id="@+id/eightButton"
+                android:text="@string/_8"
+                style="@style/numberButtons" />
+
+            <Button
+                android:id="@+id/nineButton"
+                android:text="@string/_9"
+                style="@style/numberButtons" />
+        </TableRow>
+
+        <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/adView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            ads:layout_constraintBottom_toBottomOf="parent"
+            ads:layout_constraintStart_toStartOf="parent"
+            ads:layout_constraintEnd_toEndOf="parent"
+            ads:adSize="BANNER"
+            ads:adUnitId="ca-app-pub-3940256099942544/6300978111"></com.google.android.gms.ads.AdView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-<!--    functional buttons i.e. undo, eraser, hint, pencil-->
-    <TableRow
-        android:id="@+id/funcButtons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:columnCount="4"
-        app:layout_constraintBottom_toTopOf="@id/numberButtons"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-        <Button
-            android:id="@+id/eraserButton"
-            android:text="@string/eraser"
-            style="@style/funcButtons"
-            />
-        <Button
-            android:id="@+id/pencilButton"
-            android:text="@string/pencil"
-            style="@style/funcButtons"
-            />
-
-        <Button
-            android:id="@+id/pencilButtonAlt"
-            android:text="@string/pencil"
-            style="@style/altPencil"
-            android:visibility="gone"
-            />
-
-        <Button
-            android:id="@+id/undoButton"
-            android:text="@string/undo"
-            style="@style/funcButtons"
-            />
-    </TableRow>
-
-<!-- numbered buttons  -->
-    <TableRow
-        android:id="@+id/numberButtons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:columnCount="9"
-        app:layout_constraintBottom_toTopOf="@id/adView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="20dp">
-<!--constrain buttons to adview once it is implemented-->
-        <Button
-            android:id="@+id/oneButton"
-            android:text="@string/_1"
-            style="@style/numberButtons"/>
-
-        <Button
-            android:id="@+id/twoButton"
-            android:text="@string/_2"
-            style="@style/numberButtons"/>
-
-        <Button
-            android:id="@+id/threeButton"
-            android:text="@string/_3"
-            style="@style/numberButtons"
-            />
-
-        <Button
-            android:id="@+id/fourButton"
-            android:text="@string/_4"
-            style="@style/numberButtons"/>
-
-        <Button
-            android:id="@+id/fiveButton"
-            android:text="@string/_5"
-            style="@style/numberButtons"/>
-
-        <Button
-            android:id="@+id/sixButton"
-            android:text="@string/_6"
-            style="@style/numberButtons"/>
-
-        <Button
-            android:id="@+id/sevenButton"
-            android:text="@string/_7"
-            style="@style/numberButtons" />
-
-        <Button
-            android:id="@+id/eightButton"
-            android:text="@string/_8"
-            style="@style/numberButtons"/>
-
-        <Button
-            android:id="@+id/nineButton"
-            android:text="@string/_9"
-            style="@style/numberButtons"/>
-    </TableRow>
-
-    <com.google.android.gms.ads.AdView
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/adView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        ads:layout_constraintBottom_toBottomOf="parent"
-        ads:layout_constraintStart_toStartOf="parent"
-        ads:layout_constraintEnd_toEndOf="parent"
-        ads:adSize="BANNER"
-        ads:adUnitId="ca-app-pub-3940256099942544/6300978111">
-    </com.google.android.gms.ads.AdView>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

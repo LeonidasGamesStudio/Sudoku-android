@@ -101,6 +101,15 @@ class GridValuesViewModel() : ViewModel() {
         }
     }
 
+    fun numberInput(number: Int): Boolean {
+        return if (_selectedRow == -1 || _selectedCol == -1) {
+            false
+        } else {
+            addNumberToMatrix(number)
+            true
+        }
+    }
+
     fun addNumberToMatrix(number: Int){
         if (!gridModel.pencil) {
             gridModel.undoStack.add(
