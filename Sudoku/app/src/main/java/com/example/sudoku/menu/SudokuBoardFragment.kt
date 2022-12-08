@@ -14,6 +14,7 @@ import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import com.example.sudoku.MainActivity
 import com.example.sudoku.R
 import com.example.sudoku.board.values.GridValuesViewModel
+import com.example.sudoku.board.values.StatsViewModel
 import com.example.sudoku.databinding.FragmentGameViewBinding
 import com.google.android.gms.ads.AdRequest
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -26,6 +27,7 @@ class SudokuBoardFragment : Fragment() {
     private var gameWon: Boolean = false
     private var levelDifficultyValue = 0
     private val viewModel: GridValuesViewModel by viewModels()
+    private val statsViewModel: StatsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,6 +83,7 @@ class SudokuBoardFragment : Fragment() {
         setUpBoard()
         setUpTimer()
         binding.adView.loadAd(AdRequest.Builder().build())
+        binding.statsViewModel = statsViewModel
     }
 
     // Sets click listeners to the number buttons
