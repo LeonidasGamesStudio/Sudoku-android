@@ -20,7 +20,7 @@ import com.google.android.material.color.MaterialColors
 import kotlin.math.abs
 
 
-class SudokuBoardView @JvmOverloads constructor(
+class `-` @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0

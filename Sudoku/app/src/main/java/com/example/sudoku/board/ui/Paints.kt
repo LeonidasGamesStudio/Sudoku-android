@@ -19,7 +19,7 @@ class Paints(
 ){
     val numberPaint = Paint().apply {
         style = Paint.Style.FILL
-        color = primaryVariant
+        color = Color.BLACK
         strokeWidth = 2F
         textSize = numberTextSize
         textAlign = Paint.Align.CENTER
@@ -27,7 +27,7 @@ class Paints(
 
     val selectedNumberPaint = Paint().apply {
         style = Paint.Style.FILL
-        color = primaryVariant
+        color = Color.BLACK
         strokeWidth = 2F
         textSize = numberTextSize
         textAlign = Paint.Align.CENTER
@@ -36,7 +36,7 @@ class Paints(
 
     val adjacentNumberPaint = Paint().apply {
         style = Paint.Style.FILL
-        color = primaryVariant
+        color = Color.BLACK
         strokeWidth = 2F
         textSize = numberTextSize
         textAlign = Paint.Align.CENTER
@@ -120,7 +120,7 @@ class Paints(
 
     val presetSelectedCellPaint = Paint().apply {
         style = Paint.Style.FILL_AND_STROKE
-        color = ColorUtils.blendARGB(Color.LTGRAY, secondary, 0.5f)
+        color = ColorUtils.blendARGB(Color.LTGRAY, secondary, 0.8f)
     }
 
     val presetConflictingCellPaint = Paint().apply {

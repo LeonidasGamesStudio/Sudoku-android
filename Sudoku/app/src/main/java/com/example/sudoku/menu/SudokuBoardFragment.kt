@@ -216,7 +216,7 @@ class SudokuBoardFragment : Fragment() {
 
     private fun showWinDialog(timeTaken: Long){
         gameWon = true
-        val timeInSecs = timeTaken/1000
+        val timeInSecs = timeTaken / 1000
         val timeString = DateUtils.formatElapsedTime(timeInSecs)
         MaterialAlertDialogBuilder( requireContext())
             .setTitle(getString(R.string.win_title))
