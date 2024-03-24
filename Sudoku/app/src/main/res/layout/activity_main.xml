@@ -7,4 +7,5 @@
     app:defaultNavHost="true"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:navGraph="@navigation/nav_graph"
+    android:background="@color/white"
     />
