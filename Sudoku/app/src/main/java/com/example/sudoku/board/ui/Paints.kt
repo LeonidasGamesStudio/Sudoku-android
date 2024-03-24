@@ -81,7 +81,7 @@ class Paints(
         style = Paint.Style.FILL
         color = onSecondary
         strokeWidth = 2F
-        textSize = 32F
+        textSize = 16F
         textAlign = Paint.Align.CENTER
     }
 
@@ -95,6 +95,12 @@ class Paints(
         style = Paint.Style.STROKE
         color = onSecondary
         strokeWidth = 8F
+    }
+
+    val mediumLinePaint = Paint().apply {
+        style = Paint.Style.STROKE
+        color = onSecondary
+        strokeWidth = 4F
     }
 
     val thinLinePaint = Paint().apply {

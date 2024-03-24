@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="numberButtons" parent="Widget.MaterialComponents.Button">
+    <style name="numberButtons" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:layout_weight">1</item>
         <item name="android:paddingTop">20dp</item>
         <item name="android:paddingBottom">20dp</item>

@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
         setupActionBarWithNavController(navController)
-        setTheme(R.style.Theme_Purple_Theme)
+
         resetGame()
     }
 

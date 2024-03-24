@@ -58,8 +58,6 @@ class SudokuBoardView @JvmOverloads constructor(
         }else{
             sizePixels = widthMeasureSpec.coerceAtMost(heightMeasureSpec)
         }
-
-
         numberTextSize = (sizePixels / 100).toFloat()
         setMeasuredDimension(sizePixels, sizePixels)
     }
@@ -112,11 +110,11 @@ class SudokuBoardView @JvmOverloads constructor(
 
     //draws lines for the board
     private fun drawLines(canvas: Canvas){
-        canvas.drawRect(0F, 0F, width.toFloat(), height.toFloat(), paints.extraThickLinePaint)
+    canvas.drawRect(0F, 0F, width.toFloat(), height.toFloat(), paints.thickLinePaint)
 
-        for (i in 0 until size) {
+        for (i in 1 until size) {
             val paintToUse = when (i % sqrtSize){
-                0 -> paints.thickLinePaint
+                0 -> paints.mediumLinePaint
                 else -> paints.thinLinePaint
             }
 
