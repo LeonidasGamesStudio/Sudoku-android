@@ -18,6 +18,7 @@ import com.example.sudoku.board.values.GridValuesViewModel
 import com.example.sudoku.databinding.FragmentGameViewBinding
 import com.google.android.gms.ads.AdRequest
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.util.stream.IntStream.range
 
 
 class SudokuBoardFragment : Fragment() {
@@ -70,7 +71,7 @@ class SudokuBoardFragment : Fragment() {
         } else {
             // Non-null asserted call as the difficulty select menu AND the continue menu both
             // send an argument
-           levelDifficultyValue
+            levelDifficultyValue
         }
     }
 
@@ -92,19 +93,18 @@ class SudokuBoardFragment : Fragment() {
 
     // Sets click listeners to the number buttons
     private fun setUpNumberButtons() {
-        binding.oneButton.setOnClickListener{ numberInput(1) }
-        binding.twoButton.setOnClickListener{ numberInput(2) }
-        binding.threeButton.setOnClickListener{ numberInput(3) }
-        binding.fourButton.setOnClickListener{ numberInput(4) }
-        binding.fiveButton.setOnClickListener{ numberInput(5) }
-        binding.sixButton.setOnClickListener{ numberInput(6) }
-        binding.sevenButton.setOnClickListener{ numberInput(7) }
-        binding.eightButton.setOnClickListener{ numberInput(8) }
-        binding.nineButton.setOnClickListener{ numberInput(9) }
+        binding.oneButton.setOnClickListener { numberInput(1) }
+        binding.twoButton.setOnClickListener { numberInput(2) }
+        binding.threeButton.setOnClickListener { numberInput(3) }
+        binding.fourButton.setOnClickListener { numberInput(4) }
+        binding.fiveButton.setOnClickListener { numberInput(5) }
+        binding.sixButton.setOnClickListener { numberInput(6) }
+        binding.sevenButton.setOnClickListener { numberInput(7) }
+        binding.eightButton.setOnClickListener { numberInput(8) }
+        binding.nineButton.setOnClickListener { numberInput(9) }
     }
 
-    private fun numberInput (number: Int) {
-        val previousNum = viewModel.checkSelectedNum()
+    private fun numberInput(number: Int) {
         when (viewModel.numberInput(number)) {
             -1 -> {                                  //if no row or column is selected
                 val text = "Please select a cell first!"
@@ -112,16 +112,18 @@ class SudokuBoardFragment : Fragment() {
                 val toast = Toast.makeText(context, text, duration)
                 toast.show()
             }
+
             1 -> {
                 binding.sudokuBoardView.invalidate()
-                checkForFilledNumbers(number)
-                checkForFilledNumbers(previousNum)
+                checkForFilledNumbers()
+                //checkForFilledNumbers(previousNum)
                 if (viewModel.checkWinCondition()) {
                     binding.timer.stop()
                     val timeTaken = System.currentTimeMillis() - timeBegin
                     showWinDialog(timeTaken)
                 }
             }
+
             else -> {
                 //if pencil is selected, do nothing
             }
@@ -131,12 +133,12 @@ class SudokuBoardFragment : Fragment() {
 
     // Sets up pencil button and alternate pencil button
     private fun setUpPencilButtons() {
-        binding.pencilButton.setOnClickListener{
+        binding.pencilButton.setOnClickListener {
             binding.pencilButton.visibility = View.GONE
             binding.pencilButtonAlt.visibility = View.VISIBLE
             viewModel.changePencil()
         }
-        binding.pencilButtonAlt.setOnClickListener{
+        binding.pencilButtonAlt.setOnClickListener {
             binding.pencilButtonAlt.visibility = View.GONE
             binding.pencilButton.visibility = View.VISIBLE
             viewModel.changePencil()
@@ -145,14 +147,16 @@ class SudokuBoardFragment : Fragment() {
 
     //Sets up the other functional buttons (Undo, Hint, Eraser)
     private fun setUpOtherFuncButtons() {
-        binding.undoButton.setOnClickListener{ undoMove()}
-        binding.eraserButton.setOnClickListener{ binding.viewModel?.eraseCell() }
+        binding.undoButton.setOnClickListener { undoMove() }
+        binding.eraserButton.setOnClickListener {
+            binding.viewModel?.eraseCell()
+            checkForFilledNumbers()
+        }
     }
 
     private fun undoMove() {
-        val previousNum = viewModel.checkSelectedNum()
-        if (viewModel.undoMove()){
-            checkForFilledNumbers(previousNum)
+        if (viewModel.undoMove()) {
+            checkForFilledNumbers()
             binding.sudokuBoardView.invalidate()
         } else {
             val text = "No moves left to undo!"
@@ -161,6 +165,7 @@ class SudokuBoardFragment : Fragment() {
             toast.show()
         }
     }
+
     //Adds numbers to the board and jumbles them if there is no save data
     private fun setUpBoard() {
         if (levelDifficultyValue != 0) {
@@ -190,7 +195,7 @@ class SudokuBoardFragment : Fragment() {
         if (timerLong < 0) {
             binding.timer.base = timerLong + SystemClock.elapsedRealtime()
             binding.timer.start()
-        }else{
+        } else {
             binding.timer.start()
         }
     }
@@ -203,7 +208,7 @@ class SudokuBoardFragment : Fragment() {
                 with(sharedPref.edit()) {
                     putString("SAVED_NUMBERS", numbersString)
                     putLong("TIMER_STOPPED", binding.timer.base - SystemClock.elapsedRealtime())
-                    if (levelDifficultyValue != 0){
+                    if (levelDifficultyValue != 0) {
                         putInt("DIFFICULTY", levelDifficultyValue)
                     }
                     apply()
@@ -214,25 +219,26 @@ class SudokuBoardFragment : Fragment() {
         _binding = null
     }
 
-    private fun showWinDialog(timeTaken: Long){
+    private fun showWinDialog(timeTaken: Long) {
         gameWon = true
         val timeInSecs = timeTaken / 1000
         val timeString = DateUtils.formatElapsedTime(timeInSecs)
-        MaterialAlertDialogBuilder( requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.win_title))
             .setMessage(getString(R.string.win_message, timeString))
             .setCancelable(false)
             .setPositiveButton("Okay") { _, _ ->
-                val action = SudokuBoardFragmentDirections.actionSudokuBoardFragmentToMainMenuFragment()
+                val action =
+                    SudokuBoardFragmentDirections.actionSudokuBoardFragmentToMainMenuFragment()
                 view?.findNavController()?.navigate(action)
             }.show()
     }
 
-    private fun checkForFilledNumbers(number: Int){
-        if (number != 0) {
-            if (viewModel.checkFilledNumbers(number)) {
+    private fun checkForFilledNumbers() {
+        for (i in 1..9) {
+            if (viewModel.checkFilledNumbers(i)) {
                 //change string to strikethrough
-                when (number) {
+                when (i) {
                     1 -> binding.oneButton.isEnabled = false
                     2 -> binding.twoButton.isEnabled = false
                     3 -> binding.threeButton.isEnabled = false
@@ -244,7 +250,7 @@ class SudokuBoardFragment : Fragment() {
                     else -> binding.nineButton.isEnabled = false
                 }
             } else {
-                when (number) {
+                when (i) {
                     1 -> binding.oneButton.isEnabled = true
                     2 -> binding.twoButton.isEnabled = true
                     3 -> binding.threeButton.isEnabled = true
