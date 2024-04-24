@@ -18,7 +18,6 @@ import com.example.sudoku.board.values.GridValuesViewModel
 import com.example.sudoku.databinding.FragmentGameViewBinding
 import com.google.android.gms.ads.AdRequest
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import java.util.stream.IntStream.range
 
 
 class SudokuBoardFragment : Fragment() {
@@ -200,7 +199,7 @@ class SudokuBoardFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
+    override fun onPause() {
         if (!gameWon) {
             val sharedPref = getDefaultSharedPreferences(activity)
             val numbersString = viewModel.getSaveData()
@@ -215,6 +214,11 @@ class SudokuBoardFragment : Fragment() {
                 }
             }
         }
+        super.onPause()
+    }
+
+    override fun onDestroyView() {
+
         super.onDestroyView()
         _binding = null
     }

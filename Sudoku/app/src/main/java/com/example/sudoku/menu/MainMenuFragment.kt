@@ -1,17 +1,13 @@
 package com.example.sudoku.menu
 
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.add
-import androidx.fragment.app.commit
 import androidx.navigation.NavDirections
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceManager
-import com.example.sudoku.R
 import com.example.sudoku.databinding.FragmentMainMenuBinding
 
 class MainMenuFragment : Fragment() {
@@ -35,7 +31,9 @@ class MainMenuFragment : Fragment() {
     // Sets up the behaviour for the Play button
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.playButton.setOnClickListener{ view.findNavController().navigate(determineAction()) }
+        binding.playButton.setOnClickListener {
+            view.findNavController().navigate(determineAction())
+        }
     }
 
     // If there is saved data, navigate to Continue fragment.
@@ -43,7 +41,7 @@ class MainMenuFragment : Fragment() {
     private fun determineAction(): NavDirections {
         return if (lookForSaveData() == null) {
             MainMenuFragmentDirections.actionMainMenuFragmentToDifficultySelect()
-        }else{
+        } else {
             MainMenuFragmentDirections.actionMainMenuFragmentToContinueGameFragment()
         }
     }

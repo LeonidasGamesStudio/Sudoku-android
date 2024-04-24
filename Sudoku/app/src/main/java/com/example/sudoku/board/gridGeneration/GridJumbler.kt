@@ -1,11 +1,11 @@
 package com.example.sudoku.board.gridGeneration
 
 
+import com.example.sudoku.board.numberEntry.NumberEntry
 import com.example.sudoku.board.numberEntry.NumberEntryArrayCopier
 import java.util.Random as rand
-import com.example.sudoku.board.numberEntry.NumberEntry
 
-class GridJumbler (private val sudokuNumbers: Array<Array<NumberEntry>>, private val size: Int){
+class GridJumbler(private val sudokuNumbers: Array<Array<NumberEntry>>, private val size: Int) {
     fun jumble() {
         rotatePuzzle(sudokuNumbers, size)
         shiftPuzzle(sudokuNumbers, size)
@@ -27,8 +27,14 @@ class GridJumbler (private val sudokuNumbers: Array<Array<NumberEntry>>, private
         val originalGrid = arrayCopier.copyArray()
         for (i in 0 until size) {
             for (j in 0 until size) {
-                sudokuNumbers[j][i + ((((size - 1) / 2) - i) * 2)].changeNum(originalGrid[i][j].getNum(), true)
-                sudokuNumbers[j][i + ((((size - 1) / 2) - i) * 2)].changeType(originalGrid[i][j].getType(), true)
+                sudokuNumbers[j][i + ((((size - 1) / 2) - i) * 2)].changeNum(
+                    originalGrid[i][j].getNum(),
+                    true
+                )
+                sudokuNumbers[j][i + ((((size - 1) / 2) - i) * 2)].changeType(
+                    originalGrid[i][j].getType(),
+                    true
+                )
             }
         }
         return
@@ -65,20 +71,26 @@ class GridJumbler (private val sudokuNumbers: Array<Array<NumberEntry>>, private
         return
     }
 
-    private fun shiftRows(originalGrid: Array<Array<NumberEntry>>, sudokuNumbers: Array<Array<NumberEntry>>, size: Int) {
+    private fun shiftRows(
+        originalGrid: Array<Array<NumberEntry>>,
+        sudokuNumbers: Array<Array<NumberEntry>>,
+        size: Int
+    ) {
         val shiftAmount = rand().nextInt(3)          //for top and bottom squares
         shiftR(originalGrid, sudokuNumbers, 0, 2, shiftAmount, size)
         shiftR(originalGrid, sudokuNumbers, 6, 8, -shiftAmount, size)
 
         val toSwapOrNotToSwap = rand().nextInt(2)
-        if (toSwapOrNotToSwap == 1){
+        if (toSwapOrNotToSwap == 1) {
             swapTopAndBottomOfCentre(originalGrid, sudokuNumbers, size)
         }
     }
 
-    private fun swapTopAndBottomOfCentre(originalGrid: Array<Array<NumberEntry>>, sudokuNumbers: Array<Array<NumberEntry>>,
-                                         size: Int){
-        for (j in 0 until size){
+    private fun swapTopAndBottomOfCentre(
+        originalGrid: Array<Array<NumberEntry>>, sudokuNumbers: Array<Array<NumberEntry>>,
+        size: Int
+    ) {
+        for (j in 0 until size) {
             sudokuNumbers[3][j].changeNum(originalGrid[5][j].getNum(), true)
             sudokuNumbers[3][j].changeType(originalGrid[5][j].getType(), true)
             sudokuNumbers[5][j].changeNum(originalGrid[3][j].getNum(), true)
@@ -86,36 +98,44 @@ class GridJumbler (private val sudokuNumbers: Array<Array<NumberEntry>>, private
         }
     }
 
-    private fun shiftR(originalGrid: Array<Array<NumberEntry>>, sudokuNumbers: Array<Array<NumberEntry>>,
-                       lowerBound: Int, upperBound: Int, shiftDistance: Int, size: Int){
-        for (i in lowerBound..upperBound){
+    private fun shiftR(
+        originalGrid: Array<Array<NumberEntry>>, sudokuNumbers: Array<Array<NumberEntry>>,
+        lowerBound: Int, upperBound: Int, shiftDistance: Int, size: Int
+    ) {
+        for (i in lowerBound..upperBound) {
             var nextPosition = i + shiftDistance
-            if (nextPosition > upperBound){
+            if (nextPosition > upperBound) {
                 nextPosition -= 3
-            }else if(nextPosition < lowerBound){
+            } else if (nextPosition < lowerBound) {
                 nextPosition += 3
             }
-            for (j in 0 until size){
+            for (j in 0 until size) {
                 sudokuNumbers[nextPosition][j].changeNum(originalGrid[i][j].getNum(), true)
                 sudokuNumbers[nextPosition][j].changeType(originalGrid[i][j].getType(), true)
             }
         }
     }
 
-    private fun shiftColumns(originalGrid: Array<Array<NumberEntry>>, sudokuNumbers: Array<Array<NumberEntry>>, size: Int){
+    private fun shiftColumns(
+        originalGrid: Array<Array<NumberEntry>>,
+        sudokuNumbers: Array<Array<NumberEntry>>,
+        size: Int
+    ) {
         val shiftAmount = rand().nextInt(3)          //for top and bottom squares
         shiftC(originalGrid, sudokuNumbers, 0, 2, shiftAmount, size)
         shiftC(originalGrid, sudokuNumbers, 6, 8, -shiftAmount, size)
 
         val toSwapOrNotToSwap = rand().nextInt(2)
-        if (toSwapOrNotToSwap == 1){
+        if (toSwapOrNotToSwap == 1) {
             swapLeftAndRightOfCentre(originalGrid, sudokuNumbers, size)
         }
     }
 
-    private fun swapLeftAndRightOfCentre(originalGrid: Array<Array<NumberEntry>>, sudokuNumbers: Array<Array<NumberEntry>>,
-                                         size: Int){
-        for (i in 0 until size){
+    private fun swapLeftAndRightOfCentre(
+        originalGrid: Array<Array<NumberEntry>>, sudokuNumbers: Array<Array<NumberEntry>>,
+        size: Int
+    ) {
+        for (i in 0 until size) {
             sudokuNumbers[i][3].changeNum(originalGrid[i][5].getNum(), true)
             sudokuNumbers[i][3].changeType(originalGrid[i][5].getType(), true)
             sudokuNumbers[i][5].changeNum(originalGrid[i][3].getNum(), true)
@@ -123,16 +143,18 @@ class GridJumbler (private val sudokuNumbers: Array<Array<NumberEntry>>, private
         }
     }
 
-    private fun shiftC(originalGrid: Array<Array<NumberEntry>>, sudokuNumbers: Array<Array<NumberEntry>>,
-                       lowerBound: Int, upperBound: Int, shiftDistance: Int, size: Int){
-        for (j in lowerBound..upperBound){
+    private fun shiftC(
+        originalGrid: Array<Array<NumberEntry>>, sudokuNumbers: Array<Array<NumberEntry>>,
+        lowerBound: Int, upperBound: Int, shiftDistance: Int, size: Int
+    ) {
+        for (j in lowerBound..upperBound) {
             var nextPosition = j + shiftDistance
-            if (nextPosition > upperBound){
+            if (nextPosition > upperBound) {
                 nextPosition -= 3
-            }else if(nextPosition < lowerBound){
+            } else if (nextPosition < lowerBound) {
                 nextPosition += 3
             }
-            for (i in 0 until size){
+            for (i in 0 until size) {
                 sudokuNumbers[i][nextPosition].changeNum(originalGrid[i][j].getNum(), true)
                 sudokuNumbers[i][nextPosition].changeType(originalGrid[i][j].getType(), true)
             }
@@ -141,15 +163,15 @@ class GridJumbler (private val sudokuNumbers: Array<Array<NumberEntry>>, private
 
     private fun recodePuzzle(sudokuNumbers: Array<Array<NumberEntry>>, size: Int) {
         val map = getMap(size)
-        for (i in 0 until size){
-            for (j in 0 until size){
+        for (i in 0 until size) {
+            for (j in 0 until size) {
                 map[sudokuNumbers[i][j].getNum()]?.let { sudokuNumbers[i][j].changeNum(it, true) }
             }
         }
         return
     }
 
-    private fun getMap(size: Int): Map<Int, Int>{
+    private fun getMap(size: Int): Map<Int, Int> {
         val listOfNums = (1..size).toMutableList()
         val listOfKeys = (1..size).toMutableList()
         val map = mutableMapOf<Int, Int>()

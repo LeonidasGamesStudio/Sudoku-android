@@ -29,16 +29,18 @@ class DifficultySelect : Fragment() {
     // Sets up difficulty selection buttons. 4 buttons for 4 levels of difficulty from 1-4
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.easyButton.setOnClickListener{ navigateToBoard(1) }
-        binding.mediumButton.setOnClickListener{ navigateToBoard(2) }
-        binding.hardButton.setOnClickListener{ navigateToBoard(3) }
-        binding.expertButton.setOnClickListener{ navigateToBoard(4) }
+        binding.easyButton.setOnClickListener { navigateToBoard(1) }
+        binding.mediumButton.setOnClickListener { navigateToBoard(2) }
+        binding.hardButton.setOnClickListener { navigateToBoard(3) }
+        binding.expertButton.setOnClickListener { navigateToBoard(4) }
     }
 
     // Navigates to GameView with a difficulty selected. Easy (1), Medium (2), Hard (3), Expert (4)
-    private fun navigateToBoard(difficulty: Int){
-        view?.findNavController()?.navigate(DifficultySelectDirections
-            .actionDifficultySelectToSudokuBoardFragment(difficulty))
+    private fun navigateToBoard(difficulty: Int) {
+        view?.findNavController()?.navigate(
+            DifficultySelectDirections
+                .actionDifficultySelectToSudokuBoardFragment(difficulty)
+        )
     }
 
     override fun onDestroyView() {

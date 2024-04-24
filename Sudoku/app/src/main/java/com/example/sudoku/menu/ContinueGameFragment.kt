@@ -1,16 +1,13 @@
 package com.example.sudoku.menu
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
-import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
-import com.example.sudoku.R
 import com.example.sudoku.databinding.FragmentContinueGameBinding
-import com.example.sudoku.databinding.FragmentMainMenuBinding
 
 /**
  * A simple [Fragment] subclass.
@@ -38,22 +35,25 @@ class ContinueGameFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.yesButton.setOnClickListener{
-            val action = ContinueGameFragmentDirections.actionContinueGameFragmentToSudokuBoardFragment(0)
+        binding.yesButton.setOnClickListener {
+            val action =
+                ContinueGameFragmentDirections.actionContinueGameFragmentToSudokuBoardFragment(0)
             view.findNavController().navigate(action)
         }
         binding.noButton.setOnClickListener {
             val sharedPref = getDefaultSharedPreferences(activity)
-            with (sharedPref.edit()) {
+            with(sharedPref.edit()) {
                 putString("SAVED_NUMBERS", null)
                 putLong("TIMER_STOPPED", 0L)
                 putInt("DIFFICULTY", 0)
                 apply()
             }
-            val action = ContinueGameFragmentDirections.actionContinueGameFragmentToDifficultySelect()
+            val action =
+                ContinueGameFragmentDirections.actionContinueGameFragmentToDifficultySelect()
             view.findNavController().navigate(action)
         }
     }
+
     companion object {
         @JvmStatic
         fun newInstance() =

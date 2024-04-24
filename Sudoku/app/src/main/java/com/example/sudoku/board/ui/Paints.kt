@@ -5,8 +5,6 @@ import android.graphics.Paint
 import androidx.core.graphics.ColorUtils
 
 
-
-
 class Paints(
     private val numberTextSize: Float,
     private val primary: Int,
@@ -16,7 +14,7 @@ class Paints(
     private val secondaryVariant: Int,
     private val onSecondary: Int,
     private val onBackground: Int
-){
+) {
     val numberPaint = Paint().apply {
         style = Paint.Style.FILL
         color = Color.BLACK
@@ -81,7 +79,7 @@ class Paints(
         style = Paint.Style.FILL
         color = onSecondary
         strokeWidth = 2F
-        textSize = 16F
+        textSize = numberTextSize/3
         textAlign = Paint.Align.CENTER
     }
 

@@ -3,10 +3,10 @@ package com.example.sudoku.board.values
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.sudoku.board.values.GridModel.UndoStackEntry
 import com.example.sudoku.board.gridGeneration.GridJumbler
 import com.example.sudoku.board.gridGeneration.SudokuPresetsDifficulty
 import com.example.sudoku.board.numberEntry.NumberEntry
+import com.example.sudoku.board.values.GridModel.UndoStackEntry
 
 const val TYPE_EMPTY = 0
 const val TYPE_NORMAL = 1
@@ -21,14 +21,22 @@ class GridValuesViewModel : ViewModel() {
     private var _turns = MutableLiveData(0)
     val turns: LiveData<Int> get() = _turns
 
-    private fun addTurns(){
+    private fun addTurns() {
         _turns.value = _turns.value?.plus(1)
     }
-    
+
     var selectedRow: Int = -1
-        set(value) { if (value > -1 && value < 9) {field = value}}
+        set(value) {
+            if (value > -1 && value < 9) {
+                field = value
+            }
+        }
     var selectedCol: Int = -1
-        set(value) { if (value > -1 && value < 9) {field = value}}
+        set(value) {
+            if (value > -1 && value < 9) {
+                field = value
+            }
+        }
 
     //gets presets from sudokuPresets and adds them to the sudoku board
     //public fun done on startup in sudoku board fragment
@@ -48,11 +56,11 @@ class GridValuesViewModel : ViewModel() {
         }
     }
 
-    fun jumbleGrid(){
+    fun jumbleGrid() {
         GridJumbler(gridModel.sudokuNumbers, size).jumble()
     }
 
-    fun checkSelectedNum(): Int{
+    fun checkSelectedNum(): Int {
         return if (selectedRow != -1 && selectedCol != -1) {
             gridModel.sudokuNumbers[selectedRow][selectedCol].getNum()
         } else {
@@ -64,13 +72,13 @@ class GridValuesViewModel : ViewModel() {
         var amount = 0
         for (r in 0 until size) {
             for (c in 0 until size) {
-                if (gridModel.sudokuNumbers[r][c].getNum() == number){
+                if (gridModel.sudokuNumbers[r][c].getNum() == number) {
                     amount += 1
                 }
             }
         }
 
-        if (amount == 9){
+        if (amount == 9) {
             return true
         }
         return false
@@ -78,8 +86,8 @@ class GridValuesViewModel : ViewModel() {
 
     fun getSaveData(): String {
         var numbers = ""
-        for (i in 0 until size){
-            for (j in 0 until size){
+        for (i in 0 until size) {
+            for (j in 0 until size) {
                 numbers += gridModel.sudokuNumbers[i][j].getNum().toString()
                 numbers += gridModel.sudokuNumbers[i][j].getType().toString()
             }
@@ -87,10 +95,10 @@ class GridValuesViewModel : ViewModel() {
         return numbers
     }
 
-    fun loadSaveData(data: String){
+    fun loadSaveData(data: String) {
         var saveData = data
-        for (i in size - 1 downTo 0 ){
-            for (j in size - 1 downTo 0){
+        for (i in size - 1 downTo 0) {
+            for (j in size - 1 downTo 0) {
                 val type = saveData.last()
                 saveData = saveData.dropLast(1)
                 val number = saveData.last()
@@ -106,7 +114,7 @@ class GridValuesViewModel : ViewModel() {
             -1              //error as row or col isn't selected
         } else {
             val result = addNumberOrPencil(number)
-            if (result == 1){
+            if (result == 1) {
                 checkBoardConflicts()
             }
             result
@@ -114,11 +122,11 @@ class GridValuesViewModel : ViewModel() {
     }
 
     private fun addNumberOrPencil(number: Int): Int {
-        return if (!gridModel.pencil){
+        return if (!gridModel.pencil) {
             addMoveToUndoStack()
             addNumber(number)
             1
-        }else{
+        } else {
             addPencil(number)
             2
         }
@@ -140,7 +148,7 @@ class GridValuesViewModel : ViewModel() {
         ) //change type to 1
     }
 
-    fun eraseCell(){
+    fun eraseCell() {
         if (selectedRow == -1 || selectedCol == -1) return
         val type = gridModel.sudokuNumbers[selectedRow][selectedCol].getType()
         if (type == 1 || type == 3) {
@@ -148,11 +156,10 @@ class GridValuesViewModel : ViewModel() {
             gridModel.sudokuNumbers[selectedRow][selectedCol].changeNum(0, true)
             gridModel.sudokuNumbers[selectedRow][selectedCol].changeType(TYPE_EMPTY, true)
             checkBoardConflicts()
-        }else if (type == 0) {
+        } else if (type == 0) {
             gridModel.sudokuNumbers[selectedRow][selectedCol].clearPencilNumbers()
         }
     }
-
 
 
     private fun addMoveToUndoStack() {
@@ -167,9 +174,9 @@ class GridValuesViewModel : ViewModel() {
     }
 
     fun checkWinCondition(): Boolean {
-        for (i in 0 until size){
-            for (j in 0 until size){
-                if (gridModel.sudokuNumbers[i][j].getType() != 1 && gridModel.sudokuNumbers[i][j].getType() != TYPE_START){
+        for (i in 0 until size) {
+            for (j in 0 until size) {
+                if (gridModel.sudokuNumbers[i][j].getType() != 1 && gridModel.sudokuNumbers[i][j].getType() != TYPE_START) {
                     return false
                 }
             }
@@ -215,14 +222,18 @@ class GridValuesViewModel : ViewModel() {
     //parent function to check for cell conflicts, calls checkrow, checkcolumn and checksquare
     //if positive, returns 1 for conflict
     private fun checkCellConflicts(row: Int, column: Int, number: Int): Boolean {
-        return checkRow(row, column, number) || checkColumn(row, column, number) || checkSquare(row, column, number)
+        return checkRow(row, column, number) || checkColumn(row, column, number) || checkSquare(
+            row,
+            column,
+            number
+        )
     }
 
     //checks row for any clashes with current number
     private fun checkRow(row: Int, column: Int, number: Int): Boolean {
-        for (i in 0 until size){
-            if(i != column){
-                if (gridModel.sudokuNumbers[row][i].getNum() == number){
+        for (i in 0 until size) {
+            if (i != column) {
+                if (gridModel.sudokuNumbers[row][i].getNum() == number) {
                     return true
                 }
             }
@@ -232,9 +243,9 @@ class GridValuesViewModel : ViewModel() {
 
     //checks column for any clashes with current number
     private fun checkColumn(row: Int, column: Int, number: Int): Boolean {
-        for (i in 0 until size){
-            if (i != row){
-                if (gridModel.sudokuNumbers[i][column].getNum() == number){
+        for (i in 0 until size) {
+            if (i != row) {
+                if (gridModel.sudokuNumbers[i][column].getNum() == number) {
                     return true
                 }
             }
@@ -247,10 +258,10 @@ class GridValuesViewModel : ViewModel() {
         val squareX = (row / 3) * 3
         val squareY = (column / 3) * 3
 
-        for (i in squareX..squareX + 2){
-            for (j in squareY..squareY + 2){
-                if (i != row || j != column){
-                    if (gridModel.sudokuNumbers[i][j].getNum() == number){
+        for (i in squareX..squareX + 2) {
+            for (j in squareY..squareY + 2) {
+                if (i != row || j != column) {
+                    if (gridModel.sudokuNumbers[i][j].getNum() == number) {
                         return true
                     }
                 }
@@ -259,15 +270,21 @@ class GridValuesViewModel : ViewModel() {
         return false
     }
 
-    fun undoMove(): Boolean{
+    fun undoMove(): Boolean {
         val move = gridModel.undoStack.lastOrNull()
         gridModel.undoStack.removeLastOrNull()
-        return if(move != null) {
-            gridModel.sudokuNumbers[move.posX][move.posY].changeNum(move.numberEntry.getNum(), false)
-            gridModel.sudokuNumbers[move.posX][move.posY].changeType(move.numberEntry.getType(), false)
+        return if (move != null) {
+            gridModel.sudokuNumbers[move.posX][move.posY].changeNum(
+                move.numberEntry.getNum(),
+                false
+            )
+            gridModel.sudokuNumbers[move.posX][move.posY].changeType(
+                move.numberEntry.getType(),
+                false
+            )
             checkBoardConflicts()
             true
-        }else{
+        } else {
             false
         }
     }

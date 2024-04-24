@@ -15,7 +15,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.lifecycle.get
 import com.example.sudoku.R
-import com.example.sudoku.board.values.*
+import com.example.sudoku.board.values.GridValuesViewModel
+import com.example.sudoku.board.values.TYPE_EMPTY
+import com.example.sudoku.board.values.TYPE_NORMAL
+import com.example.sudoku.board.values.TYPE_NORMAL_CONFLICT
+import com.example.sudoku.board.values.TYPE_START
+import com.example.sudoku.board.values.TYPE_START_CONFLICT
 import com.google.android.material.color.MaterialColors
 import kotlin.math.abs
 
@@ -24,7 +29,7 @@ class SudokuBoardView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr){
+) : View(context, attrs, defStyleAttr) {
     private val sqrtSize = 3
     private val size = 9
     private var cellSizePixels = 0F
@@ -34,7 +39,8 @@ class SudokuBoardView @JvmOverloads constructor(
     }
 
 
-    private val paints = Paints(numberTextSize,
+    private val paints = Paints(
+        getResources().getDimensionPixelSize(R.dimen.myFontSize).toFloat(),
         MaterialColors.getColor(this, R.attr.colorPrimary),
         MaterialColors.getColor(this, R.attr.colorPrimaryVariant),
         MaterialColors.getColor(this, R.attr.colorOnPrimary),
@@ -51,11 +57,12 @@ class SudokuBoardView @JvmOverloads constructor(
         val funcButtons = boardFragment.findViewById<TableRow>(R.id.funcButtons)
         val sizePixels: Int
         val newHeightSpec: Int
-        if(timer.y > 0){
-            val maxHeight = abs(((timer.y - timer.height) - (funcButtons.y - funcButtons.height)) + funcButtons.height)
+        if (timer.y > 0) {
+            val maxHeight =
+                abs(((timer.y - timer.height) - (funcButtons.y - funcButtons.height)) + funcButtons.height)
             newHeightSpec = MeasureSpec.makeMeasureSpec(maxHeight.toInt(), AT_MOST)
             sizePixels = widthMeasureSpec.coerceAtMost(newHeightSpec)
-        }else{
+        } else {
             sizePixels = widthMeasureSpec.coerceAtMost(heightMeasureSpec)
         }
         numberTextSize = (sizePixels / 100).toFloat()
@@ -76,9 +83,9 @@ class SudokuBoardView @JvmOverloads constructor(
 
     //takes selected row and column and shades them. One colour for selected cell, another for
     //conflicting cells
-    private fun fillCells(canvas: Canvas){
+    private fun fillCells(canvas: Canvas) {
         for (r in 0 until size) {
-            for (c in 0 until size){
+            for (c in 0 until size) {
                 val paint = chooseCellPaint(r, c)
                 fillCell(canvas, r, c, paint)
             }
@@ -104,16 +111,22 @@ class SudokuBoardView @JvmOverloads constructor(
     }
 
     //fills cell with shading to show selected cell and conflicting cell
-    private fun fillCell(canvas: Canvas, r: Int, c: Int, paint: Paint){
-        canvas.drawRect(c * cellSizePixels, r * cellSizePixels, (c+1) * cellSizePixels, (r+1) * cellSizePixels, paint)
+    private fun fillCell(canvas: Canvas, r: Int, c: Int, paint: Paint) {
+        canvas.drawRect(
+            c * cellSizePixels,
+            r * cellSizePixels,
+            (c + 1) * cellSizePixels,
+            (r + 1) * cellSizePixels,
+            paint
+        )
     }
 
     //draws lines for the board
-    private fun drawLines(canvas: Canvas){
-    canvas.drawRect(0F, 0F, width.toFloat(), height.toFloat(), paints.thickLinePaint)
+    private fun drawLines(canvas: Canvas) {
+        canvas.drawRect(0F, 0F, width.toFloat(), height.toFloat(), paints.thickLinePaint)
 
         for (i in 1 until size) {
-            val paintToUse = when (i % sqrtSize){
+            val paintToUse = when (i % sqrtSize) {
                 0 -> paints.mediumLinePaint
                 else -> paints.thinLinePaint
             }
@@ -137,9 +150,9 @@ class SudokuBoardView @JvmOverloads constructor(
     }
 
     //draws all numbers on the board, including pencils
-    private fun drawNumbers (canvas: Canvas){
+    private fun drawNumbers(canvas: Canvas) {
         val yOffset = ((paints.numberPaint.ascent() + paints.numberPaint.descent()) / 2)
-        for (i in 0 until size){
+        for (i in 0 until size) {
             for (j in 0 until size) {
                 val number = viewModel.getNum(i, j)
                 if (number != 0) {
@@ -186,7 +199,7 @@ class SudokuBoardView @JvmOverloads constructor(
     }
 
     private fun isCellPreset(row: Int, col: Int): Boolean {
-        return when (viewModel.getType(row, col)){
+        return when (viewModel.getType(row, col)) {
             TYPE_EMPTY -> false
             TYPE_NORMAL -> false
             TYPE_START -> true
@@ -202,7 +215,11 @@ class SudokuBoardView @JvmOverloads constructor(
         return if (viewModel.selectedRow != -1) {
             if (row == viewModel.selectedRow && col == viewModel.selectedCol) {
                 1
-            } else if (viewModel.getNum(row, col) != 0 && viewModel.getNum(row,col) == viewModel.getNum(viewModel.selectedRow, viewModel.selectedCol)) {
+            } else if (viewModel.getNum(row, col) != 0 && viewModel.getNum(
+                    row,
+                    col
+                ) == viewModel.getNum(viewModel.selectedRow, viewModel.selectedCol)
+            ) {
                 1
             } else if (row == viewModel.selectedRow || col == viewModel.selectedCol) {
                 2
@@ -211,25 +228,28 @@ class SudokuBoardView @JvmOverloads constructor(
             } else {
                 3
             }
-        }else{
+        } else {
             3
         }
     }
 
     //    function draws all pencil marks in. might need to check sizes
-    private fun drawPencils(canvas: Canvas, i: Int, j: Int){
-        for (k in 0..9){
-            if (viewModel.getPencil(k, i, j)){
+    private fun drawPencils(canvas: Canvas, i: Int, j: Int) {
+        for (k in 0..9) {
+            if (viewModel.getPencil(k, i, j)) {
                 val yOffset = (paints.pencilPaint.ascent() + paints.pencilPaint.descent()) / 2
-                canvas.drawText(k.toString(),
+                canvas.drawText(
+                    k.toString(),
                     (j * cellSizePixels + (((k - 1) % 3) + 0.5) * (cellSizePixels / 3)).toFloat(),
-                    (i * cellSizePixels + (((k - 1) / 3) + 0.5) * (cellSizePixels / 3) - yOffset).toFloat(), paints.pencilPaint)
-            //draw pencil
+                    (i * cellSizePixels + (((k - 1) / 3) + 0.5) * (cellSizePixels / 3) - yOffset).toFloat(),
+                    paints.pencilPaint
+                )
+                //draw pencil
             }
         }
     }
 
-//    handles touch events. every time the board is touched, it is invalidated and redrawn with shading
+    //    handles touch events. every time the board is touched, it is invalidated and redrawn with shading
     // around selected cell
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -238,6 +258,7 @@ class SudokuBoardView @JvmOverloads constructor(
                 handleTouchEvent(event.x, event.y)
                 true
             }
+
             else -> false
         }
     }
